@@ -9,3 +9,5 @@
 !/template/test/
 !/template/test/CMakeLists.txt
 !/template/test/*.cc
+!/contest/
+!/contest/CMakeLists.txt
