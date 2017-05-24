@@ -3,6 +3,11 @@
 # whitelist
 !/.gitignore
 !/CMakeLists.txt
+!/bootstrap
+!/initialize
+!/atcoder
+!/tools/
+!/tools/atcoder.js
 !/template/
 !/template/template.cc
 !/template/CMakeLists.txt
