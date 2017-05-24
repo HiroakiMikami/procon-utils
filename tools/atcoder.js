@@ -2,6 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const spawn = require('child_process').spawn
 
+const httpcli = require('cheerio-httpcli')
+
 const base = path.resolve(path.dirname(process.argv[1]), '..')
 
 function exec (command, args) {
@@ -89,6 +91,25 @@ function generateMock (contestName, problems) {
 
 function downloadTestCases (contestName) {
     return new Promise((resolve, reject) => {
+        httpcli.fetch(`http://${contestName}.contest.atcoder.jp/assignments`, (err, $) => {
+            if (err) {
+                reject(err)
+            } else {
+                let results = []
+                $('#outer-inner table tbody tr td.center a').each(function (idx, elem) {
+                    const problemName = $(this).text().toLowerCase()
+                    const link = $(this).attr('href')
+
+                    const result = execWithOutput('oj', [
+                        'dl',
+                        '-f', path.resolve(base, 'contest', contestName, `test-${problemName}`, 'sample%i.%e'),
+                        `http://${contestName}.contest.atcoder.jp${link}`
+                    ])
+                    results.push(result)
+                })
+                Promise.all(results).then(() => { resolve() })
+            }
+        })
         exec('find', [path.resolve(base, 'contest', contestName), '-name', '*.cc']).then(data => {
             const files = Array.from(data.split('\n'))
             const results = files.map(file => {

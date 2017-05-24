@@ -7,6 +7,7 @@
 !/initialize
 !/atcoder
 !/tools/
+!/tools/package.json
 !/tools/atcoder.js
 !/template/
 !/template/template.cc
