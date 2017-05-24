@@ -1,0 +1,7 @@
+file(GLOB_RECURSE files *.cc)
+foreach(file ${files})
+    get_filename_component(dir_ ${file} DIRECTORY)
+    get_filename_component(dir  ${dir_} NAME)
+    get_filename_component(exec ${file} NAME_WE)
+    add_executable(${dir}-${exec} ${file})
+endforeach(file)
