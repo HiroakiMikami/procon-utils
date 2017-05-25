@@ -204,6 +204,10 @@ struct heap {
         make_heap(this->m_heap.begin(), this->m_heap.end(), this->m_cmp);
     }
 
+    void reserve(const size_t size) {
+        this->m_heap.reserve(size);
+    }
+
     const T &top() const {
         return this->m_heap.front();
     }
