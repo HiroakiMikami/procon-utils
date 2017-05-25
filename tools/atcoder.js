@@ -110,20 +110,6 @@ function downloadTestCases (contestName) {
                 Promise.all(results).then(() => { resolve() })
             }
         })
-        exec('find', [path.resolve(base, 'contest', contestName), '-name', '*.cc']).then(data => {
-            const files = Array.from(data.split('\n'))
-            const results = files.map(file => {
-                const ext = path.extname(file)
-                const problem = path.basename(file, ext)
-                return execWithOutput('oj', [
-                    'dl',
-                    '-f', path.resolve(base, 'contest', contestName, `test-${problem}`, 'sample%i.%e'),
-                    `http://${contestName}.contest.atcoder.jp/tasks/${contestName}_${problem}`
-                ])
-            })
-
-            return Promise.all(results)
-        })
     })
 }
 
