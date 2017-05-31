@@ -9,6 +9,7 @@
 !/tools/
 !/tools/package.json
 !/tools/atcoder.js
+!/tools/allproblems.py
 !/template/
 !/template/template.cc
 !/template/CMakeLists.txt
