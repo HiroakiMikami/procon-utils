@@ -222,7 +222,7 @@ struct heap {
         push_heap(this->m_heap.begin(), this->m_heap.end(), this->m_cmp);
     }
 
-    auto size() const {
+    size_t size() const {
         return this->m_heap.size();
     }
 
