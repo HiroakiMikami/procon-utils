@@ -110,11 +110,16 @@ function downloadTestCases (contestName) {
 }
 
 function executeTestCase (contestName, problem) {
-    execWithOutput('oj', [
-        'test',
-        '-c', path.resolve(base, 'build', 'contest', `${contestName}-${problem}`),
-        `-f`, path.resolve(base, 'contest', contestName, `test-${problem}`, '%s.%e')
-    ])
+    execWithOutput('make', [
+        '-C', path.resolve(base, 'build'),
+        `${contestName}-${problem}`
+    ]).then(() => {
+        return execWithOutput('oj', [
+            'test',
+            '-c', path.resolve(base, 'build', 'contest', `${contestName}-${problem}`),
+            `-f`, path.resolve(base, 'contest', contestName, `test-${problem}`, '%s.%e')
+        ])
+    })
 }
 
 if (process.argv.length < 3) {
