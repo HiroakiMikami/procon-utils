@@ -1,8 +1,13 @@
 *
 
 # whitelist
-!/.gitignore
-!/CMakeLists.txt
+!*.cc
+!*.h
+!.gitignore
+!CMakeLists.txt
+!/src/
+!/test/
+
 !/bootstrap
 !/initialize
 !/atcoder
@@ -10,11 +15,3 @@
 !/tools/package.json
 !/tools/atcoder.js
 !/tools/allproblems.py
-!/template/
-!/template/template.cc
-!/template/CMakeLists.txt
-!/template/test/
-!/template/test/CMakeLists.txt
-!/template/test/*.cc
-!/contest/
-!/contest/CMakeLists.txt
