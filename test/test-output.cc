@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "common.h"
+#include "common.cc"
 
 using namespace debug;
 

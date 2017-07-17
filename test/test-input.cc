@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <sstream>
-#include "common.h"
+#include "common.cc"
 
 TEST(InputTest, ReadPairTest) {
     stringbuf buf;

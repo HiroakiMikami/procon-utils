@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "common.h"
+#include "common.cc"
 
 TEST(HashTest, PairHashTest) {
     auto p1 = make_pair(0, 1);

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <numeric>
-#include "common.h"
+#include "common.cc"
 #include "data-structure/heap.cc"
 
 TEST(HeapTest, ConstructorTest) {
