@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const cheerio = require('cheerio')
 
-const { exec, execWithOutput } = require('./common')
+const { exec, execWithoutOutput } = require('./common')
 
 module.exports = {}
 module.exports.exec = exec
@@ -29,7 +29,7 @@ module.exports.downloadTestCases = (root, name) => {
             const problemName = $(this).text().toLowerCase()
             const link = $(this).attr('href')
             
-            const result = execWithOutput('oj', [
+            const result = execWithoutOutput('oj', [
                 'dl',
                 '-f', path.resolve(root, 'src', 'atcoder', name, `test-${problemName}`, 'sample%i.%e'),
                 `http://${name}.contest.atcoder.jp${link}`
