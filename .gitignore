@@ -2,6 +2,7 @@
 
 # whitelist
 !*.cc
+!*.js
 !*.h
 !.gitignore
 !CMakeLists.txt
@@ -15,6 +16,4 @@
 !/workspace/
 !/tools/
 !/tools/package.json
-!/tools/procon.js
-!/tools/atcoder.js
 !/tools/allproblems.py
