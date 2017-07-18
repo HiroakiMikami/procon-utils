@@ -85,20 +85,18 @@ switch (subcommand) {
                 process.exit(1)
             }
             const target = args[0]
-            const dir = path.dirname(target)
+            const dir = path.relative(root, path.dirname(target)).replace(/\.\//, '')
             const ext = path.extname(target)
-            console.log(ext)
             const name = path.basename(target, ext)
 
-            const makeTarget = dir.split('/').join('-') + name
-            console.log(makeTarget)
+            const makeTarget = `${dir.split('/').join('-')}-${name}`
 
             execWithoutOutput('make', [
                 '-C', path.resolve(root, 'build'), `${makeTarget}`
             ]).then(() => {
                 return execWithoutOutput('oj', [
                     'test',
-                    '-c', path.resolve(root, 'build', makeTarget),
+                    '-c', path.resolve(root, 'build', 'src', makeTarget),
                     '-f', path.resolve(root, dir, `test-${name}`, '%s.%e')
                 ])
             })
