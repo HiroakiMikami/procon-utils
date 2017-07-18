@@ -17,7 +17,7 @@ module.exports.getContestFiles = (root, name) => {
     }
 
     return problems.map(problem => {
-        return path.resolve(root, 'src', 'atcoder', name, `${problem.cc}`)
+        return path.resolve(root, 'src', 'atcoder', name, `${problem}.cc`)
     })
 }
 module.exports.downloadTestCases = (root, name) => {
