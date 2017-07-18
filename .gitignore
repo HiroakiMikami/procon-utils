@@ -11,8 +11,10 @@
 
 !/bootstrap
 !/initialize
-!/atcoder
+!/procon
+!/workspace/
 !/tools/
 !/tools/package.json
+!/tools/procon.js
 !/tools/atcoder.js
 !/tools/allproblems.py
