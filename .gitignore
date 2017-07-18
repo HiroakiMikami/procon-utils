@@ -9,8 +9,8 @@
 !/test/
 !/src/**
 
-!/bootstrap
-!/initialize
+!/install.sh
+!/init.sh
 !/procon
 !/workspace/
 !/tools/
