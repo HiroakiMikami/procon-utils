@@ -8,6 +8,7 @@
 !CMakeLists.txt
 !/src/
 !/test/
+!/test/**
 !/src/**
 
 !/install.sh
