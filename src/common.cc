@@ -22,10 +22,10 @@ using i64 = int64_t; using u64 = uint64_t;
 template <class T> using V = vector<T>;
 
 // Loops
-#define REP(i, n) for (int i = 0; i < (n); ++i)
-#define REPR(i, n) for (int i = (n) - 1; i >= 0; --i)
-#define FOR(i, n, m) for (int i = (n); i < (m); ++i)
-#define FORR(i, n, m) for (int i = (m) - 1; i >= (n); --i)
+#define REP(i, n) for (i64 i = 0; i < (n); ++i)
+#define REPR(i, n) for (i64 i = (n) - 1; i >= 0; --i)
+#define FOR(i, n, m) for (i64 i = (n); i < (m); ++i)
+#define FORR(i, n, m) for (i64 i = (m) - 1; i >= (n); --i)
 
 #define FORE(x, xs) for (auto &x: (xs))
 
