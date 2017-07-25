@@ -12,4 +12,9 @@ namespace math {
 
         return x2 * x2 * ((r % 2 == 0) ? 1 : n);
     }
+
+    i64 gcd(i64 a, i64 b) {
+        if (b == 0) return a;
+        return gcd(b, a % b);
+    }
 }
