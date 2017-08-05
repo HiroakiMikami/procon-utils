@@ -6,6 +6,7 @@ enable_testing()
 
 # C++ settings
 set(CMAKE_CXX_STANDARD  14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 # Add subdirectories
