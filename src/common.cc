@@ -161,21 +161,38 @@ namespace debug {
         return stream;
     }
 
-    template <class T, class Alloc>
-    ostream &operator<<(ostream& stream, const vector<T, Alloc> &vector) {
+    template <class Iterator>
+    struct Container {
+        Container(const Iterator &begin, const Iterator &end) : begin(begin), end(end) {}
+        const Iterator &begin;
+        const Iterator &end;
+    };
+
+    template <class Iterator>
+    Container<Iterator> container(const Iterator &begin, const Iterator &end) {
+        return Container<Iterator>(begin, end);
+    }
+
+    template <class Iterator>
+    ostream &operator<<(ostream &stream, const Container<Iterator> &container) {
         stream << "[";
 
-        for (size_t i = 0; i < vector.size(); i++) {
-            stream << vector[i];
+        size_t cnt = 0;
+        for (auto it = container.begin; it != container.end; ++it) {
+            stream << *it;
+            stream << "," << ((cnt % 10 == 9) ? "\n " : "\t");
 
-            if (i != vector.size() - 1) {
-                stream << "," << ((i % 10 == 9) ? "\n " : "\t");
-            }
+            cnt += 1;
         }
 
-        stream << "]";
-        return stream;
+        stream << "\b\b]";
     }
+
+    template <class T, class Alloc>
+    ostream &operator<<(ostream& stream, const vector<T, Alloc> &vector) {
+        return stream << container(vector.begin(), vector.end());
+    }
+
 }
 
 // Hash

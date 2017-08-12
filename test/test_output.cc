@@ -24,5 +24,13 @@ TEST(OutputTest, OutputVectorTest) {
     testing::internal::CaptureStdout();
     cout << v << flush;
     std::string output = testing::internal::GetCapturedStdout();
-    EXPECT_EQ(string("[0,\t1,\t2]"), output);
+    EXPECT_EQ(string("[0,\t1,\t2,\t\b\b]"), output);
+}
+
+TEST(OutputTest, OutputContainerTest) {
+    auto v = V<int>({0, 1, 2});
+    testing::internal::CaptureStdout();
+    cout << container(CTR(v)) << flush;
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(string("[0,\t1,\t2,\t\b\b]"), output);
 }
