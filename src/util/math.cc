@@ -1,3 +1,7 @@
+#ifndef MAIN
+#include "common.cc"
+#endif
+
 namespace math {
     /*
      * n^r

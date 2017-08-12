@@ -1,6 +1,9 @@
 #include <unordered_map>
 #include <vector>
 #include <type_traits>
+#ifndef MAIN
+#include "common.cc"
+#endif
 
 template <class V>
 struct TagMapping {

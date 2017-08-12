@@ -1,3 +1,7 @@
+#ifndef MAIN
+#include "common.cc"
+#endif
+
 template <class T>
 struct binary_indexed_tree {
     binary_indexed_tree(const size_t size) : m_bit(size, 0) {}

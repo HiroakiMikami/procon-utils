@@ -1,6 +1,9 @@
 #include <vector>
 #include <unordered_map>
 #include <experimental/optional>
+#ifndef MAIN
+#include "common.cc"
+#endif
 
 namespace graph {
     struct EdgeSet {

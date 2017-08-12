@@ -1,3 +1,4 @@
+#define MAIN
 int body(int &argc, char **argv);
 
 // main function (DO NOT EDIT)

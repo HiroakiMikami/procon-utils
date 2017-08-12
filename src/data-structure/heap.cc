@@ -1,3 +1,7 @@
+#ifndef MAIN
+#include "common.cc"
+#endif
+
 template <class T, class Compare = std::less<T>>
 struct heap {
     heap () : m_heap(), m_cmp() {

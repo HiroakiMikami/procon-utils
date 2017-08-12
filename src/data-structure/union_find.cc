@@ -1,3 +1,7 @@
+#ifndef MAIN
+#include "common.cc"
+#endif
+
 struct union_find {
     union_find(size_t N) : m_parents(N), m_rank(N) {
         for (auto i = 0; i < N; i++) {

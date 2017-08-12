@@ -1,3 +1,5 @@
+#define MAIN
+
 #include <gtest/gtest.h>
 #include "common.cc"
 #include "data-structure/graph.cc"

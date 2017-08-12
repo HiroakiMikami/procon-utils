@@ -1,3 +1,5 @@
+#define MAIN
+
 #include <gtest/gtest.h>
 #include <numeric>
 #include "common.cc"
