@@ -29,6 +29,9 @@ template <class T> using V = vector<T>;
 
 #define FORE(x, xs) for (auto &x: (xs))
 
+// Macros
+#define CTR(x) (x).begin(), (x).end()
+
 // Utils for Tuple
 namespace tuple_utils {
     template<size_t...> struct seq{};
