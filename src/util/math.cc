@@ -21,4 +21,18 @@ namespace math {
         if (b == 0) return a;
         return gcd(b, a % b);
     }
+
+    i64 combination(i64 n, i64 r) {
+        if (r == 0) {
+            return 1;
+        }
+
+        i64 x = 1;
+        FOR (d, 1, r + 1) {
+            x *= n;
+            n -= 1;
+            x /= d;
+        }
+        return x;
+    }
 }
