@@ -3,8 +3,10 @@
 #include <experimental/optional>
 
 namespace graph {
-
     struct EdgeSet {
+
+        EdgeSet() : m_edges() {}
+
         EdgeSet(const V<pair<size_t, size_t>> &edges) : m_edges(edges) {}
 
         template<class Iterator>
@@ -107,8 +109,44 @@ namespace graph {
     };
 
     struct AdjacencyList {
-        AdjacencyList(const V<pair<size_t, size_t>> &edges);
-        AdjacencyList(const V<V<size_t>> &lists) : m_lists(lists) {}
+        AdjacencyList(const V<pair<size_t, size_t>> &edges) {
+            size_t vertex_size = 0;
+            for (const auto &edge: edges) {
+                vertex_size = std::max(vertex_size, std::max(edge.first, edge.second));
+            }
+
+            m_lists = V<V<size_t>>(vertex_size + 1);
+            for (const auto &edge: edges) {
+                m_lists[edge.first].push_back(edge.second);
+            }
+        }
+        template <class Iterator>
+        AdjacencyList(const Iterator &begin, const Iterator &end) {
+            size_t vertex_size = 0;
+            for (auto it = begin; it != end; ++it) {
+                const auto &edge = *it;
+                vertex_size = std::max(vertex_size, std::max(edge.first, edge.second));
+            }
+
+            m_lists = V<V<size_t>>(vertex_size + 1);
+            for (auto it = begin; it != end; ++it) {
+                const auto &edge = *it;
+                m_lists[edge.first].push_back(edge.second);
+            }
+        }
+
+        AdjacencyList(size_t vertex_size, const V<pair<size_t, size_t>> &edges) : m_lists(vertex_size) {
+            for (const auto &edge: edges) {
+                m_lists[edge.first].push_back(edge.second);
+            }
+        }
+        template <class Iterator>
+        AdjacencyList(size_t vertex_size, const Iterator &begin, const Iterator &end) : m_lists(vertex_size) {
+            for (auto it = begin; it != end; ++it) {
+                const auto &edge = *it;
+                m_lists[edge.first].push_back(edge.second);
+            }
+        }
 
         const size_t vertices_size() const {
             return this->m_lists.size();
@@ -129,13 +167,29 @@ namespace graph {
             return find(this->m_lists[n1].begin(), this->m_lists[n1].end(), n2) != this->m_lists[n1].end();
         }
 
-        const V<size_t> &incomings(size_t n) const {
-
+        V<size_t> incomings(size_t n) const {
+            V<size_t> retval;
+            REP (i, this->m_lists.size()) {
+                FORE(e, this->m_lists[i]) {
+                    if (e == n) {
+                        retval.push_back(i);
+                    }
+                }
+            }
+            return retval;
         }
 
         template<class Pred>
         V<size_t> incomings(size_t n, Pred &&pred) const {
-
+            V<size_t> retval;
+            REP (i, this->m_lists.size()) {
+                FORE(e, this->m_lists[i]) {
+                    if (e == n && pred(make_pair(i, n))) {
+                        retval.push_back(i);
+                    }
+                }
+            }
+            return retval;
         }
 
         const V<size_t> &outgoings(size_t n) const {
@@ -154,15 +208,16 @@ namespace graph {
         }
 
         void to_undirected() {
-            REP(i, this->m_lists.size()) {
-                FORE(n, this->m_lists[i]) {
-
+            auto ls = this->m_lists;
+            REP(i, ls.size()) {
+                FORE(n, ls[i]) {
+                    this->m_lists[n].push_back(i);
                 }
             }
         }
 
         void add_edge(size_t n1, size_t n2) {
-
+            this->m_lists[n1].push_back(n2);
         }
 
         size_t add_vertex() {
@@ -172,13 +227,20 @@ namespace graph {
 
         void remove_edge(size_t n1, size_t n2) {
             this->m_lists[n1].erase(
-                    find(this->m_lists[n1].begin(), this->m_lists[n1].end(), n2),
+                    remove(this->m_lists[n1].begin(), this->m_lists[n1].end(), n2),
                     this->m_lists[n1].end()
             );
         }
 
         void remove_vertex(size_t n) {
-
+            for (auto i = 0; i < this->m_lists.size(); ++i) {
+                if (i == n) {
+                    this->m_lists[i].clear();
+                } else {
+                    auto &edges = this->m_lists[i];
+                    edges.erase(remove(edges.begin(), edges.end(), n), edges.end());
+                }
+            }
         }
 
     private:
