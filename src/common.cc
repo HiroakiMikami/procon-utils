@@ -186,13 +186,13 @@ namespace debug {
         }
 
         stream << "\b\b]";
+        return stream;
     }
 
     template <class T, class Alloc>
     ostream &operator<<(ostream& stream, const vector<T, Alloc> &vector) {
         return stream << container(vector.begin(), vector.end());
     }
-
 }
 
 // Hash
