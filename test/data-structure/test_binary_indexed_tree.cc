@@ -6,15 +6,19 @@
 
 TEST(BinaryIndexedTreeTest, ConstructorTest) {
     BIT<int> b({0, 1, 2});
-
     EXPECT_EQ(3, b.size());
-}
-TEST(BinaryIndexedTreeTest, SimpleSumTest) {
-    BIT<int> b({1, 3, 2});
     EXPECT_EQ(0, b.sum(0));
-    EXPECT_EQ(1, b.sum(1));
-    EXPECT_EQ(4, b.sum(2));
-    EXPECT_EQ(6, b.sum(3));
+    EXPECT_EQ(0, b.sum(1));
+    EXPECT_EQ(1, b.sum(2));
+    EXPECT_EQ(3, b.sum(3));
+
+    V<i64> xs = {0, 1, 2};
+    BIT<int> b2(CTR(b));
+    EXPECT_EQ(3, b2.size());
+    EXPECT_EQ(0, b2.sum(0));
+    EXPECT_EQ(0, b2.sum(1));
+    EXPECT_EQ(1, b2.sum(2));
+    EXPECT_EQ(3, b2.sum(3));
 }
 TEST(BinaryIndexedTreeTest, SumTest) {
     BIT<int> b({1, 3, 2});

@@ -7,11 +7,24 @@ struct binary_indexed_tree {
     binary_indexed_tree() : m_bit(0, 0) {}
     binary_indexed_tree(const size_t size) : m_bit(size, 0) {}
     binary_indexed_tree(const vector<T> &vector) : m_bit(vector) {
-        REP (i, m_bit.size()) {
+        REP (i, this->m_bit.size()) {
             auto j = i + lsb(i + 1);
             if (j < this->m_bit.size()) {
-                this->m_bit[j] += m_bit[i];
+                this->m_bit[j] += this->m_bit[i];
             }
+        }
+    }
+    template <class Iterator>
+    binary_indexed_tree(const Iterator &begin, const Iterator &end) : m_bit(distance(begin, end), 0) {
+        auto it = begin;
+        REP (i, this->m_bit.size()) {
+            this->m_bit[i] = *it;
+            auto j = i + lsb(i + 1);
+            if (j < this->m_bit.size()) {
+                this->m_bit[j] += this->m_bit[i];
+            }
+
+            ++it;
         }
     }
 
