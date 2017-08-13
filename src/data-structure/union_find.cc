@@ -3,6 +3,7 @@
 #endif
 
 struct union_find {
+    union_find() : m_parents(0), m_rank(0) {}
     union_find(size_t N) : m_parents(N), m_rank(N) {
         for (auto i = 0; i < N; i++) {
             m_parents[i] = i;

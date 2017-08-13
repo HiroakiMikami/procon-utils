@@ -112,6 +112,8 @@ namespace graph {
     };
 
     struct AdjacencyList {
+        AdjacencyList() {}
+
         AdjacencyList(const V<pair<size_t, size_t>> &edges) {
             size_t vertex_size = 0;
             for (const auto &edge: edges) {

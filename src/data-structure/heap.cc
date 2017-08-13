@@ -4,8 +4,7 @@
 
 template <class T, class Compare = std::less<T>>
 struct heap {
-    heap () : m_heap(), m_cmp() {
-    }
+    heap () : m_heap(), m_cmp() {}
     heap (const V<T> &v) : m_heap(v), m_cmp() {
         make_heap(this->m_heap.begin(), this->m_heap.end(), this->m_cmp);
     }

@@ -4,6 +4,7 @@
 
 template <class T>
 struct binary_indexed_tree {
+    binary_indexed_tree() : m_bit(0, 0) {}
     binary_indexed_tree(const size_t size) : m_bit(size, 0) {}
     binary_indexed_tree(const vector<T> &vector) : m_bit(vector) {
         REP (i, m_bit.size()) {
