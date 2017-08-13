@@ -20,6 +20,12 @@ TEST(MathTest, GcdTest) {
     EXPECT_EQ(3, math::gcd(6, 15));
 }
 
+TEST(MathTest, LeastCommonMultipleTest) {
+    EXPECT_EQ(2, math::least_common_multiple(1, 2));
+    EXPECT_EQ(4, math::least_common_multiple(2, 4));
+    EXPECT_EQ(12, math::least_common_multiple(6, 4));
+}
+
 TEST(MathTest, CombinationTest) {
     EXPECT_EQ(1, math::combination(4, 0));
     EXPECT_EQ(4, math::combination(4, 1));

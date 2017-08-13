@@ -23,6 +23,11 @@ namespace math {
         return gcd(b, a % b);
     }
 
+    static i64 least_common_multiple(i64 a, i64 b) {
+        auto x = gcd(a, b);
+        return a / x * b;
+    }
+
     template <class V>
     static V combination(V n, i64 r) {
         if (r == 0) {
