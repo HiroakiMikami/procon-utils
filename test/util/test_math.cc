@@ -27,17 +27,17 @@ TEST(MathTest, GcdCtrTest) {
     EXPECT_EQ(1, math::gcd_ctr({6, 15, 2}));
 }
 
-TEST(MathTest, LeastCommonMultipleTest) {
-    EXPECT_EQ(2, math::least_common_multiple(1, 2));
-    EXPECT_EQ(4, math::least_common_multiple(2, 4));
-    EXPECT_EQ(12, math::least_common_multiple(6, 4));
+TEST(MathTest, LcmTest) {
+    EXPECT_EQ(2, math::lcm(1, 2));
+    EXPECT_EQ(4, math::lcm(2, 4));
+    EXPECT_EQ(12, math::lcm(6, 4));
 }
 
-TEST(MathTest, LeastCommonMultipleCtrTest) {
-    EXPECT_EQ(-1, math::least_common_multiple_ctr({}));
-    EXPECT_EQ(2, math::least_common_multiple_ctr({2}));
-    EXPECT_EQ(4, math::least_common_multiple_ctr({2, 4}));
-    EXPECT_EQ(60, math::least_common_multiple_ctr({15, 4, 12}));
+TEST(MathTest, LcmCtrTest) {
+    EXPECT_EQ(-1, math::lcm_ctr({}));
+    EXPECT_EQ(2, math::lcm_ctr({2}));
+    EXPECT_EQ(4, math::lcm_ctr({2, 4}));
+    EXPECT_EQ(60, math::lcm_ctr({15, 4, 12}));
 }
 
 TEST(MathTest, CombinationTest) {

@@ -43,13 +43,13 @@ namespace math {
         return gcd_ctr(xs.begin(), xs.end());
     }
 
-    static i64 least_common_multiple(i64 a, i64 b) {
+    static i64 lcm(i64 a, i64 b) {
         auto x = gcd(a, b);
         return a / x * b;
     }
 
     template <class Iterator>
-    static i64 least_common_multiple_ctr(const Iterator &begin, const Iterator &end) {
+    static i64 lcm_ctr(const Iterator &begin, const Iterator &end) {
         if (begin == end) {
             return -1;
         } else {
@@ -58,13 +58,13 @@ namespace math {
             ++it;
             for (; it != end; ++it) {
                 auto x = *it;
-                ans = least_common_multiple(ans, x);
+                ans = lcm(ans, x);
             }
             return ans;
         }
     }
-    static i64 least_common_multiple_ctr(const V<i64> &xs) {
-        return least_common_multiple_ctr(xs.begin(), xs.end());
+    static i64 lcm_ctr(const V<i64> &xs) {
+        return lcm_ctr(xs.begin(), xs.end());
     }
 
     template <class V>
