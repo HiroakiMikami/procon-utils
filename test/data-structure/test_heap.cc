@@ -6,14 +6,20 @@
 #include "data-structure/heap.cc"
 
 TEST(HeapTest, ConstructorTest) {
-    heap<int> h({0, 1, 2});
+    heap<int> h;
+    h.push(0);
+    h.push(1);
+    h.push(2);
 
     EXPECT_EQ(3, h.size());
     EXPECT_EQ(2, h.top());
 }
 
 TEST(HeapTest, CompareTest) {
-    heap<int, greater<int>> h({0, 1, 2});
+    heap<int, greater<int>> h;
+    h.push(0);
+    h.push(1);
+    h.push(2);
     EXPECT_EQ(0, h.top());
 }
 

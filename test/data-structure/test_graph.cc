@@ -9,11 +9,20 @@ using namespace graph;
 template <class Graph>
 struct GraphTest : public ::testing::Test {
     Graph mkGraph(const V<pair<size_t, size_t>> &edges) {
-        return Graph(edges);
+        size_t vertex_num = 0;
+        FORE (e, edges) {
+            vertex_num = max(vertex_num, max(e.first + 1, e.second + 1));
+        }
+
+        Graph g(vertex_num);
+        FORE (e, edges) {
+            g.add_edge(e.first, e.second);
+        }
+        return g;
     }
 };
 
-typedef ::testing::Types<EdgeSet, AdjacencyList> Types;
+typedef ::testing::Types<AdjacencyList> Types;
 TYPED_TEST_CASE(GraphTest, Types);
 
 TYPED_TEST(GraphTest, ConstructorTest) {
