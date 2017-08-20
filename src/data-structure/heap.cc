@@ -3,9 +3,9 @@
 #endif
 
 template <class T, class Compare = std::less<T>>
-struct heap {
-    heap () : m_heap(), m_cmp() {}
-    heap (const Compare &cmp) : m_heap(), m_cmp(cmp) {}
+struct Heap {
+    Heap () : m_heap(), m_cmp() {}
+    Heap (const Compare &cmp) : m_heap(), m_cmp(cmp) {}
 
     void reserve(const size_t size) {
         this->m_heap.reserve(size);

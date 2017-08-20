@@ -6,7 +6,7 @@
 #include "data-structure/heap.cc"
 
 TEST(HeapTest, ConstructorTest) {
-    heap<int> h;
+    Heap<int> h;
     h.push(0);
     h.push(1);
     h.push(2);
@@ -16,7 +16,7 @@ TEST(HeapTest, ConstructorTest) {
 }
 
 TEST(HeapTest, CompareTest) {
-    heap<int, greater<int>> h;
+    Heap<int, greater<int>> h;
     h.push(0);
     h.push(1);
     h.push(2);
@@ -24,7 +24,7 @@ TEST(HeapTest, CompareTest) {
 }
 
 TEST(HeapTest, PushTest) {
-    heap<int> h;
+    Heap<int> h;
 
     h.push(10);
     EXPECT_EQ(1, h.size());
@@ -39,7 +39,7 @@ TEST(HeapTest, PushTest) {
 }
 
 TEST(HeapTest, PopTest) {
-    heap<int> h;
+    Heap<int> h;
 
     h.push(10);
     h.push(20);

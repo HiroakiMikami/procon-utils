@@ -3,10 +3,10 @@
 #endif
 
 template <class T>
-struct binary_indexed_tree {
-    binary_indexed_tree() : m_bit(0, 0) {}
-    binary_indexed_tree(const size_t size) : m_bit(size, 0) {}
-    binary_indexed_tree(const vector<T> &vector) : m_bit(vector) {
+struct BinaryIndexedTree {
+    BinaryIndexedTree() : m_bit(0, 0) {}
+    BinaryIndexedTree(const size_t size) : m_bit(size, 0) {}
+    BinaryIndexedTree(const vector<T> &vector) : m_bit(vector) {
         REP (i, this->m_bit.size()) {
             auto j = i + lsb(i + 1);
             if (j < this->m_bit.size()) {
@@ -15,7 +15,7 @@ struct binary_indexed_tree {
         }
     }
     template <class Iterator>
-    binary_indexed_tree(const Iterator &begin, const Iterator &end) : m_bit(distance(begin, end), 0) {
+    BinaryIndexedTree(const Iterator &begin, const Iterator &end) : m_bit(distance(begin, end), 0) {
         auto it = begin;
         REP (i, this->m_bit.size()) {
             this->m_bit[i] = *it;
@@ -73,4 +73,4 @@ private:
     }
     vector<T> m_bit;
 };
-template <class T> using BIT = binary_indexed_tree<T>;
+template <class T> using BIT = BinaryIndexedTree<T>;
