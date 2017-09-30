@@ -81,4 +81,49 @@ namespace math {
         }
         return x;
     }
+
+    static bool is_prime(i64 n) {
+        if (n <= 1) return false;
+        for (i64 i = 2; i * i <= n; i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+    static V<i64> divisor(i64 n) {
+        V<i64> res;
+        for (i64 i = 2; i * i <= n; i++) {
+            if (n % i == 0) {
+                res.push_back(i);
+                if (i != n / i) res.push_back(n / i);
+            }
+        }
+        return res;
+    }
+    static unordered_map<i64, size_t> prime_factor(i64 n) {
+        unordered_map<i64, size_t> res;
+        for (i64 i = 2; i * i <= n; i++) {
+            while (n % i == 0) {
+                res[i] += 1;
+                n /= i;
+            }
+        }
+        if (n != 1) res[n] = 1;
+        return res;
+    }
+
+    static pair<V<i64>, V<bool>> sieve(i64 n) {
+        V<i64> prime;
+        V<bool> is_prime_(n + 1, true);
+        is_prime_[0] = is_prime_[1] = false;
+
+        FOR (i, 2, n + 1) {
+            if (is_prime_[i]) {
+                prime.push_back(i);
+                for (i64 j = 2 * i; j <= n; j += i) {
+                    is_prime_[j] = false;
+                }
+            }
+        }
+        return { prime, is_prime_ };
+    }
 }

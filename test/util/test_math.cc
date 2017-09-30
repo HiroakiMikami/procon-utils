@@ -49,3 +49,28 @@ TEST(MathTest, CombinationTest) {
 
     // TODO overlow test
 }
+
+TEST(MathTest, IsPrimeTest) {
+    EXPECT_TRUE(math::is_prime(2));
+    EXPECT_FALSE(math::is_prime(4));
+
+    EXPECT_FALSE(math::is_prime(1));
+}
+TEST(MathTest, DivisorTest) {
+    EXPECT_EQ(V<i64>({2, 6, 3, 4}), math::divisor(12));
+}
+TEST(MathTest, PrimeFactorTest) {
+    auto expected = unordered_map<i64, size_t>({{2, 2}, {3, 1}});
+    EXPECT_EQ(expected, math::prime_factor(12));
+}
+TEST(MathTest, SieveTest) {
+    auto res = math::sieve(15);
+    EXPECT_EQ(V<i64>({2, 3, 5, 7, 11, 13}), res.first);
+    EXPECT_EQ(
+            V<bool>({false, false, true, true, false, true,
+                     false, true, false, false, false,
+                     true, false, true, false, false
+                    }),
+            res.second
+    );
+}
