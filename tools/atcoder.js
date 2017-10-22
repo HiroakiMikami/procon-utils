@@ -14,6 +14,8 @@ module.exports.getContestFiles = (root, name) => {
         problems = ['c', 'd', 'e', 'f']
     } else if (name.match(/agc\d+/)) {
         problems = ['a', 'b', 'c', 'd', 'e', 'f']
+    } else {
+        problems = ['a', 'b', 'c', 'd', 'e', 'f']
     }
 
     return problems.map(problem => {
