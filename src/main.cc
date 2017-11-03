@@ -5,9 +5,13 @@ int body(int &argc, char **argv);
 int main (int argc, char **argv) {
     cin.tie(0);
     ios_base::sync_with_stdio(false);
-    return body(argc, argv);
+
+    cout << fixed;
+    body();
+
+    return 0;
 }
 
-int body(int &argc, char **argv) {
-    return 0;
+int body() {
+    using namespace debug;
 }
