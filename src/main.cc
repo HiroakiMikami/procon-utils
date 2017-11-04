@@ -1,5 +1,5 @@
 #define MAIN
-int body(int &argc, char **argv);
+void body();
 
 // main function (DO NOT EDIT)
 int main (int argc, char **argv) {
@@ -12,6 +12,6 @@ int main (int argc, char **argv) {
     return 0;
 }
 
-int body() {
+void body() {
     using namespace debug;
 }
