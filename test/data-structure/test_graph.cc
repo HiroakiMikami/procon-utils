@@ -4,8 +4,6 @@
 #include "common.cc"
 #include "data-structure/graph.cc"
 
-using namespace graph;
-
 template <class Graph>
 struct GraphTest : public ::testing::Test {
     Graph mkGraph(const V<pair<size_t, size_t>> &edges) {
