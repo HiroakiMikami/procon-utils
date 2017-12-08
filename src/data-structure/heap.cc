@@ -42,6 +42,6 @@ struct Heap {
         return this->m_heap.cend();
     }
 private:
-    V<T> m_heap;
+    vector<T> m_heap;
     Compare m_cmp;
 };
