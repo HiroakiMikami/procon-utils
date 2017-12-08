@@ -13,7 +13,7 @@ namespace mod {
         }
 
         Integer inverse() const {
-            return math::pow(*this, 1000000005);
+            return pow(*this, 1000000005);
         }
 
         Integer operator+(const Integer &rhs) const {

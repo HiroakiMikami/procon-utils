@@ -33,7 +33,7 @@ TEST(ModTest, DivideTest) {
 }
 
 TEST(ModTest, CombinationTest) {
-    EXPECT_EQ(Integer(4), math::combination(Integer(4), 1));
+    EXPECT_EQ(Integer(4), combination(Integer(4), 1));
 }
 
 TEST(ModTest, FactTableTest) {
