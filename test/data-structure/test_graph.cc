@@ -14,49 +14,146 @@ struct GraphTest : public ::testing::Test {
 
         Graph g(vertex_num);
         FORE (e, edges) {
-            g.add_edge(e.first, e.second);
+            g.add_edge({e.first, e.second});
         }
         return g;
     }
 };
 
-typedef ::testing::Types<AdjacencyList> Types;
-TYPED_TEST_CASE(GraphTest, Types);
+template <class Graph>
+struct LabeledGraphTest : public ::testing::Test {
+    template <class Edge>
+    Graph mkGraph(const V<tuple<size_t, size_t, Edge>> &edges) {
+        size_t vertex_num = 0;
+        FORE (e, edges) {
+            vertex_num = max(vertex_num, max(get<0>(e) + 1, get<1>(e) + 1));
+        }
+
+        Graph g(vertex_num);
+        FORE (e, edges) {
+            g.add_edge(e);
+        }
+        return g;
+    }
+};
+
+typedef ::testing::Types<SimpleAdjacencyList, SimpleAdjacencyMatrix> Graphs;
+TYPED_TEST_CASE(GraphTest, Graphs);
 
 TYPED_TEST(GraphTest, ConstructorTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     EXPECT_EQ(3, g.vertices_size());
-    EXPECT_EQ(3, g.edges().size());
+    int cnt = 0;
+    g.edges([&](const auto& edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(3, cnt);
     EXPECT_TRUE(g.has_edge(0, 1));
     EXPECT_FALSE(g.has_edge(1, 0));
-    EXPECT_EQ(vector<size_t>({2}), g.outgoings(1));
-    EXPECT_EQ(vector<size_t>(), g.incomings(0));
-    EXPECT_EQ(vector<size_t>({2}), g.outgoings(0, [](auto e) { return e.second % 2 == 0; }));
-}
-TYPED_TEST(GraphTest, ToUndirectedTest) {
-    auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
-    g.to_undirected();
-
-    EXPECT_EQ(6, g.edges().size());
-    EXPECT_TRUE(g.has_edge(1, 0));
+    cnt = 0;
+    g.outgoings(1, [&](const auto &edge) {
+        EXPECT_EQ(2, get<1>(edge));
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(GraphTest, AddEdgeTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     EXPECT_FALSE(g.has_edge(1, 0));
-    g.add_edge(1, 0);
+    g.add_edge({1, 0});
     EXPECT_TRUE(g.has_edge(1, 0));
 }
 TYPED_TEST(GraphTest, RemoveEdgeTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     EXPECT_TRUE(g.has_edge(0, 1));
-    g.remove_edge(0, 1);
+    g.remove_edge({0, 1});
     EXPECT_FALSE(g.has_edge(0, 1));
 }
 TYPED_TEST(GraphTest, RemoveVertexTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     EXPECT_EQ(3, g.vertices_size());
     g.remove_vertex(2);
-    EXPECT_GE(3, g.vertices_size());
-    EXPECT_LE(2, g.vertices_size());
+    int cnt = 0;
+    g.outgoings(2, [&](const auto &edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(0, cnt);
+}
+TYPED_TEST(GraphTest, ToUndirectedTest) {
+    auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
+    g.to_undirected();
+
+    int cnt = 0;
+    g.edges([&](const auto &edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(6, cnt);
+    EXPECT_TRUE(g.has_edge(1, 0));
+}
+
+typedef ::testing::Types<WeightedAdjacencyList, WeightedAdjacencyMatrix> LabeledGraphs;
+TYPED_TEST_CASE(LabeledGraphTest, LabeledGraphs);
+
+TYPED_TEST(LabeledGraphTest, ConstructorTest) {
+    auto edges = V<tuple<size_t, size_t, i64>>();
+    edges.push_back({0, 1, 10});
+    edges.push_back({0, 2, 20});
+    edges.push_back({1, 2, 30});
+    auto g = this->mkGraph(edges);
+
+    EXPECT_EQ(3, g.vertices_size());
+    int cnt = 0;
+    g.edges([&](const auto &edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(3, cnt);
+    cnt = 0;
+    g.edges(0, 1, [&](const auto &edge) {
+        EXPECT_EQ(make_tuple(0, 1, 10), edge);
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(1, cnt);
+    cnt = 0;
+    g.edges(1, 0, [&](const auto &edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(0, cnt);
+    cnt = 0;
+    g.outgoings(1, [&](const auto &edge) {
+        EXPECT_EQ(2, get<1>(edge));
+        EXPECT_EQ(30, get<2>(edge));
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(1, cnt);
+}
+TYPED_TEST(LabeledGraphTest, ToUndirectedTest) {
+    auto edges = V<tuple<size_t, size_t, i64>>();
+    edges.push_back({0, 1, 10});
+    edges.push_back({0, 2, 20});
+    edges.push_back({1, 2, 30});
+    auto g = this->mkGraph(edges);
+    g.to_undirected();
+
+    int cnt = 0;
+    g.edges([&](const auto &edge) {
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(6, cnt);
+    cnt = 0;
+    g.edges(1, 0, [&](const auto &edge) {
+        EXPECT_EQ(make_tuple(1, 0, 10L), edge);
+        ++cnt;
+        return false;
+    });
+    EXPECT_EQ(1, cnt);
 }
