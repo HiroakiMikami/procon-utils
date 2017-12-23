@@ -90,6 +90,92 @@ namespace tuple_utils {
     };
 }
 
+// STL support
+template <class Iterator>
+struct Container {
+    Container(const Iterator &begin, const Iterator &end) : m_begin(begin), m_end(end) {}
+    const Iterator& begin() const {
+        return this->m_begin;
+    }
+    const Iterator& end() const {
+        return this->m_end;
+    }
+    const Iterator &m_begin;
+    const Iterator &m_end;
+};
+
+template <class Functions>
+struct BaseIterator {
+    using State = typename Functions::State;
+
+    BaseIterator(const State &state, const Functions &func) : state(state), func(func) {
+        while (!this->is_end() && !this->is_valid()) {
+            this->next();
+        }
+    }
+    BaseIterator(const State &state) : state(state), func() {
+        while (!this->is_end() && !this->is_valid()) {
+            this->next();
+        }
+    }
+
+    decltype(auto) operator*() {
+        return this->func.get_value(this->state);
+    }
+
+    decltype(auto) operator*() const {
+        return this->func.get_value(this->state);
+    }
+
+    BaseIterator &operator++() {
+        if (this->is_end()) {
+            return *this;
+        }
+
+        this->next();
+        while (!this->is_end() && !this->is_valid()) {
+            this->next();
+        }
+
+        return *this;
+    }
+
+    BaseIterator &operator--() {
+        if (this->is_begin()) {
+            return *this;
+        }
+
+        this->previous();
+        while (!this->is_begin() && !this->is_valid()) {
+            this->previous();
+        }
+
+        return *this;
+    }
+
+    bool is_begin() const {
+        return this->func.is_begin(this->state);
+    }
+    bool is_end() const {
+        return this->func.is_end(this->state);
+    }
+    const State &get_state() const {
+        return this->state;
+    }
+private:
+    bool is_valid() const {
+        return this->func.is_valid(this->state);
+    }
+    void next() {
+        this->func.next(this->state);
+    }
+    void previous() {
+        this->func.previous(this->state);
+    }
+    State state;
+    Functions func;
+};
+
 // Input
 template <class F, class S>
 istream &operator>>(istream &stream, pair<F, S> &pair) {
@@ -163,13 +249,6 @@ namespace debug {
     }
 
     template <class Iterator>
-    struct Container {
-        Container(const Iterator &begin, const Iterator &end) : begin(begin), end(end) {}
-        const Iterator &begin;
-        const Iterator &end;
-    };
-
-    template <class Iterator>
     Container<Iterator> container(const Iterator &begin, const Iterator &end) {
         return Container<Iterator>(begin, end);
     }
@@ -179,8 +258,8 @@ namespace debug {
         stream << "[";
 
         size_t cnt = 0;
-        for (auto it = container.begin; it != container.end; ++it) {
-            stream << *it;
+        for (const auto &it: container) {
+            stream << it;
             stream << "," << ((cnt % 10 == 9) ? "\n " : "\t");
 
             cnt += 1;
