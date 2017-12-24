@@ -44,60 +44,32 @@ TYPED_TEST(GraphTest, ConstructorTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     EXPECT_EQ(3, g.vertices_size());
+    auto o1 = g.edges();
     int cnt = 0;
-    g.edges([&](const auto& edge) {
+    for (auto it: o1) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(3, cnt);
     EXPECT_TRUE(g.has_edge(0, 1));
     EXPECT_FALSE(g.has_edge(1, 0));
+    auto o2 = g.outgoings(1);
+    EXPECT_EQ(2, get<1>(*o2.begin()));
     cnt = 0;
-    g.outgoings(1, [&](const auto &edge) {
-        EXPECT_EQ(2, get<1>(edge));
+    for (auto it: o2) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(GraphTest, IterateEdgesTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     int cnt = 0;
-    g.edges(0, 1, [&](const auto &edge) {
+    auto o1 = g.edges(0, 1);
+    for (auto edge: o1) {
         EXPECT_EQ(0, get<0>(edge));
         EXPECT_EQ(1, get<1>(edge));
         ++cnt;
-        return false;
-    });
-    EXPECT_EQ(1, cnt);
-}
-TYPED_TEST(GraphTest, BreakAtMiddleOfEdgesTest) {
-    auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
-
-    int cnt = 0;
-    g.edges([&](const auto &edge) {
-        ++cnt;
-        return true;
-    });
-    EXPECT_EQ(1, cnt);
-
-    cnt = 0;
-    g.edges(0, 1, [&](const auto &edge) {
-        ++cnt;
-        return true;
-    });
-    EXPECT_EQ(1, cnt);
-}
-TYPED_TEST(GraphTest, BreakAtMiddleOfOutgoingsTest) {
-    auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
-
-    int cnt = 0;
-    g.outgoings(0, [&](const auto &edge) {
-        EXPECT_EQ(1, get<1>(edge));
-        ++cnt;
-        return true;
-    });
+    }
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(GraphTest, RemoveEdgeTest) {
@@ -115,10 +87,11 @@ TYPED_TEST(GraphTest, RemoveVertexTest) {
     EXPECT_EQ(3, g.vertices_size());
     g.remove_vertex(2);
     int cnt = 0;
-    g.outgoings(2, [&](const auto &edge) {
+    auto e1 = g.outgoings(2);
+    EXPECT_TRUE(e1.end().is_end());
+    for (auto edge: e1) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(0, cnt);
 }
 TYPED_TEST(GraphTest, ToUndirectedTest) {
@@ -126,10 +99,10 @@ TYPED_TEST(GraphTest, ToUndirectedTest) {
     g.to_undirected();
 
     int cnt = 0;
-    g.edges([&](const auto &edge) {
+    auto o1 = g.edges();
+    for (auto it: o1) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(6, cnt);
     EXPECT_TRUE(g.has_edge(1, 0));
 }
@@ -145,32 +118,36 @@ TYPED_TEST(LabeledGraphTest, ConstructorTest) {
     auto g = this->mkGraph(edges);
 
     EXPECT_EQ(3, g.vertices_size());
+
     int cnt = 0;
-    g.edges([&](const auto &edge) {
+    auto e1 = g.edges();
+    for (auto it: e1) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(3, cnt);
+
+    auto e2 = g.edges(0, 1);
     cnt = 0;
-    g.edges(0, 1, [&](const auto &edge) {
+    for (auto edge: e2) {
         EXPECT_EQ(make_tuple(0, 1, 10), edge);
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(1, cnt);
+
+    auto e3 = g.edges(1, 0);
     cnt = 0;
-    g.edges(1, 0, [&](const auto &edge) {
+    for (auto it: e3) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(0, cnt);
+
+    auto e4 = g.outgoings(1);
     cnt = 0;
-    g.outgoings(1, [&](const auto &edge) {
+    for (auto edge: e4) {
         EXPECT_EQ(2, get<1>(edge));
         EXPECT_EQ(30, get<2>(edge));
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(LabeledGraphTest, IterateEdgesTest) {
@@ -181,50 +158,13 @@ TYPED_TEST(LabeledGraphTest, IterateEdgesTest) {
     auto g = this->mkGraph(edges);
 
     int cnt = 0;
-    g.edges(0, 1, [&](const auto &edge) {
+    auto e1 = g.edges(0, 1);
+    for (auto edge: e1) {
         EXPECT_EQ(0, get<0>(edge));
         EXPECT_EQ(1, get<1>(edge));
         EXPECT_EQ(10, get<2>(edge));
         ++cnt;
-        return false;
-    });
-    EXPECT_EQ(1, cnt);
-}
-TYPED_TEST(LabeledGraphTest, BreakAtMiddleOfEdgesTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
-    edges.push_back({0, 1, 10});
-    edges.push_back({0, 2, 20});
-    edges.push_back({1, 2, 30});
-    auto g = this->mkGraph(edges);
-
-    int cnt = 0;
-    g.edges([&](const auto &edge) {
-        ++cnt;
-        return true;
-    });
-    EXPECT_EQ(1, cnt);
-
-    cnt = 0;
-    g.edges(0, 1, [&](const auto &edge) {
-        ++cnt;
-        return true;
-    });
-    EXPECT_EQ(1, cnt);
-}
-TYPED_TEST(LabeledGraphTest, BreakAtMiddleOfOutgoingsTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
-    edges.push_back({0, 1, 10});
-    edges.push_back({0, 2, 20});
-    edges.push_back({1, 2, 30});
-    auto g = this->mkGraph(edges);
-
-    int cnt = 0;
-    g.outgoings(0, [&](const auto &edge) {
-        EXPECT_EQ(1, get<1>(edge));
-        EXPECT_EQ(10, get<2>(edge));
-        ++cnt;
-        return true;
-    });
+    }
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(LabeledGraphTest, RemoveEdgeTest) {
@@ -253,17 +193,17 @@ TYPED_TEST(LabeledGraphTest, ToUndirectedTest) {
     g.to_undirected();
 
     int cnt = 0;
-    g.edges([&](const auto &edge) {
+    auto e1 = g.edges();
+    for (auto edge: e1) {
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(6, cnt);
+
+    auto e2 = g.edges(1, 0);
     cnt = 0;
-    g.edges(1, 0, [&](const auto &edge) {
+    for (auto edge: e2) {
         EXPECT_EQ(make_tuple(1, 0, 10L), edge);
         ++cnt;
-        return false;
-    });
+    }
     EXPECT_EQ(1, cnt);
 }
-
