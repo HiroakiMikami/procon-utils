@@ -73,8 +73,6 @@ TEST(BaseIteratorTest, DecrementTest) {
     EXPECT_TRUE(it2.is_begin());
 }
 
-
-
 TEST(BaseIteratorTest, DereferenceTest) {
     std::vector<int> data = {1, 0, 3, 4, 5};
 
@@ -82,4 +80,16 @@ TEST(BaseIteratorTest, DereferenceTest) {
     *it1 = 6;
     EXPECT_EQ(3, get<0>(it1.get_state()));
     EXPECT_EQ(6, *it1);
+}
+
+TEST(BaseIteratorTest, RangeBasedForLoopTest) {
+    std::vector<int> data = {1, 0, 3, 4, 5};
+
+    auto x = Container<IteratorForTest>(IteratorForTest(std::make_tuple(0, data)), IteratorForTest(std::make_tuple(5, data)));
+    int cnt = 0;
+    for (auto &it: x) {
+        EXPECT_EQ((cnt == 0) ? 0 : 4, it);
+        cnt += 1;
+    }
+    EXPECT_EQ(2, cnt);
 }

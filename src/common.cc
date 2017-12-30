@@ -100,8 +100,8 @@ struct Container {
     const Iterator& end() const {
         return this->m_end;
     }
-    const Iterator &m_begin;
-    const Iterator &m_end;
+    Iterator m_begin;
+    Iterator m_end;
 };
 
 template <class Functions>
@@ -151,6 +151,13 @@ struct BaseIterator {
         }
 
         return *this;
+    }
+
+    bool operator==(const BaseIterator<Functions> &rhs) const {
+        return this->state == rhs.state;
+    }
+    bool operator!=(const BaseIterator<Functions> &rhs) const {
+        return !(*this == rhs);
     }
 
     bool is_begin() const {
