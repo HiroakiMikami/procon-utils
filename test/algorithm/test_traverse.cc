@@ -26,7 +26,7 @@ TYPED_TEST(g_DfsTest, SimpleTest) {
     dfs(this->mkGraph({{0, 1}, {0, 3}, {1, 2}, {3, 4}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return false;
-    }, [](const auto& edge) { return true; });
+    });
 
     EXPECT_EQ(4, nodes.size());
     EXPECT_TRUE(nodes[0] == 1 || nodes[0] == 3);
@@ -71,7 +71,7 @@ TYPED_TEST(g_BfsTest, SimpleTest) {
     bfs(this->mkGraph({{0, 1}, {0, 3}, {1, 2}, {3, 4}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return false;
-    }, [](const auto& edge) { return true; });
+    });
 
     EXPECT_EQ(4, nodes.size());
     EXPECT_TRUE(nodes[0] == 1 || nodes[0] == 3);
