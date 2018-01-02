@@ -3,44 +3,12 @@
 #include <gtest/gtest.h>
 #include "common.cc"
 #include "data-structure/graph.cc"
+#include "../graph_utils.h"
 
-template <class Graph>
-struct GraphTest : public ::testing::Test {
-    Graph mkGraph(const V<pair<size_t, size_t>> &edges) {
-        size_t vertex_num = 0;
-        FORE (e, edges) {
-            vertex_num = max(vertex_num, max(e.first + 1, e.second + 1));
-        }
+GRAPH_TEST(GraphTest);
+LABELED_GRAPH_TEST(LabeledGraphTest);
 
-        Graph g(vertex_num);
-        FORE (e, edges) {
-            g.add_edge({e.first, e.second});
-        }
-        return g;
-    }
-};
-
-template <class Graph>
-struct LabeledGraphTest : public ::testing::Test {
-    template <class Edge>
-    Graph mkGraph(const V<tuple<size_t, size_t, Edge>> &edges) {
-        size_t vertex_num = 0;
-        FORE (e, edges) {
-            vertex_num = max(vertex_num, max(get<0>(e) + 1, get<1>(e) + 1));
-        }
-
-        Graph g(vertex_num);
-        FORE (e, edges) {
-            g.add_edge(e);
-        }
-        return g;
-    }
-};
-
-typedef ::testing::Types<SimpleAdjacencyList, SimpleAdjacencyMatrix> Graphs;
-TYPED_TEST_CASE(GraphTest, Graphs);
-
-TYPED_TEST(GraphTest, ConstructorTest) {
+TYPED_TEST(g_GraphTest, ConstructorTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     EXPECT_EQ(3, g.vertices_size());
@@ -60,7 +28,7 @@ TYPED_TEST(GraphTest, ConstructorTest) {
     }
     EXPECT_EQ(1, cnt);
 }
-TYPED_TEST(GraphTest, IterateEdgesTest) {
+TYPED_TEST(g_GraphTest, IterateEdgesTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     int cnt = 0;
@@ -72,7 +40,7 @@ TYPED_TEST(GraphTest, IterateEdgesTest) {
     }
     EXPECT_EQ(1, cnt);
 }
-TYPED_TEST(GraphTest, RemoveEdgeTest) {
+TYPED_TEST(g_GraphTest, RemoveEdgeTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     EXPECT_TRUE(g.has_edge(0, 1));
     g.remove_edge({0, 1});
@@ -82,7 +50,7 @@ TYPED_TEST(GraphTest, RemoveEdgeTest) {
     g.remove_edge(1, 2);
     EXPECT_FALSE(g.has_edge(1, 2));
 }
-TYPED_TEST(GraphTest, RemoveVertexTest) {
+TYPED_TEST(g_GraphTest, RemoveVertexTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     EXPECT_EQ(3, g.vertices_size());
     g.remove_vertex(2);
@@ -94,7 +62,7 @@ TYPED_TEST(GraphTest, RemoveVertexTest) {
     }
     EXPECT_EQ(0, cnt);
 }
-TYPED_TEST(GraphTest, ToUndirectedTest) {
+TYPED_TEST(g_GraphTest, ToUndirectedTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     g.to_undirected();
 
@@ -107,10 +75,7 @@ TYPED_TEST(GraphTest, ToUndirectedTest) {
     EXPECT_TRUE(g.has_edge(1, 0));
 }
 
-typedef ::testing::Types<WeightedAdjacencyList, WeightedAdjacencyMatrix> LabeledGraphs;
-TYPED_TEST_CASE(LabeledGraphTest, LabeledGraphs);
-
-TYPED_TEST(LabeledGraphTest, ConstructorTest) {
+TYPED_TEST(g_LabeledGraphTest, ConstructorTest) {
     auto edges = V<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
@@ -150,7 +115,7 @@ TYPED_TEST(LabeledGraphTest, ConstructorTest) {
     }
     EXPECT_EQ(1, cnt);
 }
-TYPED_TEST(LabeledGraphTest, IterateEdgesTest) {
+TYPED_TEST(g_LabeledGraphTest, IterateEdgesTest) {
     auto edges = V<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
@@ -167,7 +132,7 @@ TYPED_TEST(LabeledGraphTest, IterateEdgesTest) {
     }
     EXPECT_EQ(1, cnt);
 }
-TYPED_TEST(LabeledGraphTest, RemoveEdgeTest) {
+TYPED_TEST(g_LabeledGraphTest, RemoveEdgeTest) {
     auto edges = V<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
@@ -184,7 +149,7 @@ TYPED_TEST(LabeledGraphTest, RemoveEdgeTest) {
     g.remove_edge(1, 2);
     EXPECT_FALSE(g.has_edge(1, 2));
 }
-TYPED_TEST(LabeledGraphTest, ToUndirectedTest) {
+TYPED_TEST(g_LabeledGraphTest, ToUndirectedTest) {
     auto edges = V<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
