@@ -8,6 +8,7 @@
 
 GRAPH_TEST(DfsTest);
 GRAPH_TEST(BfsTest);
+LABELED_GRAPH_TEST(01BfsTest);
 
 TYPED_TEST(g_DfsTest, SimpleTest) {
     std::vector<size_t> nodes;
@@ -97,4 +98,21 @@ TYPED_TEST(g_BfsTest, IsAddedTest) {
 
     EXPECT_EQ(1, nodes.size());
     EXPECT_EQ(1, nodes[0]);
+}
+
+TYPED_TEST(g_01BfsTest, SimpleTest) {
+    std::vector<std::tuple<size_t, size_t, int>> edges;
+    edges.push_back({0, 1, 1});
+    edges.push_back({0, 2, 0});
+    edges.push_back({1, 3, 0});
+    edges.push_back({2, 4, 1});
+
+    auto g = this->mkGraph(edges);
+    std::vector<size_t> nodes;
+    zero_one_bfs(g, {0}, [&](const auto &edge) {
+        nodes.push_back(get<1>(edge));
+        return false;
+    });
+
+    EXPECT_EQ(std::vector<size_t>({2, 1, 3, 4}), nodes);
 }
