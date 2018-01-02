@@ -5,29 +5,41 @@
 #include "graph.cc"
 #endif
 
-template <class Graph, class F1, class F2>
-void dfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &start,
-                                 const F1 &process, const F2 &is_added) {
-    using _Edge = Edge<typename Graph::EdgeLabel>;
-    std::stack<_Edge> s;
+template <class Graph, class F1, class F2, class Container, class Push, class Pop>
+void traverse(const Graph &g, const std::vector<size_t> &start, const F1 &process, const F2 &is_added,
+              Container &container, const Push &push, const Pop &pop) {
     for (const auto &n: start) {
         for (auto edge: g.outgoings(n)) {
-            if (is_added(edge)) s.push(edge);
+            if (is_added(edge)) push(container, edge);
         }
     }
 
-    while (!s.empty()) {
-        auto x = s.top();
-        s.pop();
+    while (!container.empty()) {
+        auto x = pop(container);
 
         if (process(x)) {
             return ;
         }
 
         for (const auto edge: g.outgoings(get<1>(x))) {
-            if (is_added(edge)) s.push(edge);
+            if (is_added(edge)) push(container, edge);
         }
     }
+}
+
+template <class Graph, class F1, class F2>
+void dfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &start,
+                                 const F1 &process, const F2 &is_added) {
+    using _Edge = Edge<typename Graph::EdgeLabel>;
+    std::stack<_Edge> s;
+
+    traverse(g, start, process, is_added, s,
+             [](auto &s, auto &edge) { s.push(edge); },
+             [](auto &s) {
+                 auto x = s.top();
+                 s.pop();
+                 return x;
+             });
 }
 template <class Graph, class F1, class F2>
 void dfs(const Graph &g, const std::vector<size_t> &start,
@@ -46,24 +58,14 @@ void bfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &star
                                  const F1 &process, const F2 &is_added) {
     using _Edge = Edge<typename Graph::EdgeLabel>;
     std::queue<_Edge> s;
-    for (const auto &n: start) {
-        for (auto edge: g.outgoings(n)) {
-            if (is_added(edge)) s.push(edge);
-        }
-    }
 
-    while (!s.empty()) {
-        auto x = s.front();
-        s.pop();
-
-        if (process(x)) {
-            return ;
-        }
-
-        for (const auto edge: g.outgoings(get<1>(x))) {
-            if (is_added(edge)) s.push(edge);
-        }
-    }
+    traverse(g, start, process, is_added, s,
+             [](auto &s, auto &edge) { s.push(edge); },
+             [](auto &s) {
+                 auto x = s.front();
+                 s.pop();
+                 return x;
+             });
 }
 template <class Graph, class F1, class F2>
 void bfs(const Graph &g, const std::vector<size_t> &start,
