@@ -1,4 +1,6 @@
 #include <stack>
+#include <queue>
+#include <deque>
 
 #ifndef MAIN
 #include "common.cc"
