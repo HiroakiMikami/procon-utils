@@ -37,3 +37,29 @@ std::vector<std::experimental::optional<i64>> bellman_ford(const Graph &g, size_
 
     return vertices;
 }
+
+template <class Graph>
+std::vector<std::vector<i64>> warshall_floyd(const Graph &g) {
+    auto max = std::numeric_limits<i64>::max();
+    auto N = g.vertices_size();
+    std::vector<std::vector<i64>> distance(N, std::vector<i64>(N, max));
+
+    REP (k, N) {
+        distance[k][k] = 0;
+        for (auto edge: g.outgoings(k)) {
+            distance[k][get<1>(edge)] = get<2>(edge);
+        }
+    }
+
+    REP (k, N) {
+        REP (i, N) {
+            REP (j, N) {
+                if (distance[i][k] != max) {
+                    distance[i][j] = std::min(distance[i][j], distance[i][k] + distance[k][j]);
+                }
+            }
+        }
+    }
+
+    return distance;
+}
