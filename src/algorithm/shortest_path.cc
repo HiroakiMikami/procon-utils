@@ -6,13 +6,25 @@
 #include "graph.cc"
 #endif
 
+template <class Cost>
+struct CostWithPreviousVertex {
+    CostWithPreviousVertex(Cost cost, std::experimental::optional<size_t> previous_vertex)
+            : cost(cost), previous_vertex(previous_vertex) {}
+    Cost cost;
+    std::experimental::optional<size_t> previous_vertex;
+};
+
 template <class Graph>
-std::vector<std::experimental::optional<i64>> bellman_ford(const Graph &g, size_t start) {
-    auto max = std::numeric_limits<i64>::max();
+std::vector<std::experimental::optional<CostWithPreviousVertex<typename Graph::EdgeLabel>>> bellman_ford(const Graph &g, size_t start) {
+    using std::experimental::optional;
+    using std::experimental::make_optional;
+
+    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
     auto N = g.vertices_size();
 
-    auto vertices = std::vector<std::experimental::optional<i64>>(N, std::experimental::make_optional(max));
-    vertices[start] = std::experimental::make_optional(0);
+    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+    auto vertices = std::vector<optional<C>>(N, make_optional(C(max, optional<size_t>())));
+    vertices[start] = make_optional(C(0, optional<size_t>()));
 
     REP (i, N - 1) {
         for (auto edge: g.edges()) {
@@ -20,8 +32,9 @@ std::vector<std::experimental::optional<i64>> bellman_ford(const Graph &g, size_
             auto v = get<1>(edge);
             auto d = get<2>(edge);
 
-            if (vertices[u].value() != max && vertices[v].value() > vertices[u].value() + d) {
-                vertices[v] = std::experimental::make_optional(vertices[u].value() + d);
+            if (vertices[u].value().cost != max &&
+                vertices[v].value().cost > vertices[u].value().cost + d) {
+                vertices[v] = make_optional(C(vertices[u].value().cost + d, make_optional(u)));
             }
         }
     }
@@ -30,8 +43,9 @@ std::vector<std::experimental::optional<i64>> bellman_ford(const Graph &g, size_
         auto u = get<0>(edge);
         auto v = get<1>(edge);
         auto d = get<2>(edge);
-        if (!vertices[u] || (vertices[u].value() != max && vertices[u].value() + d < vertices[v].value())) {
-            vertices[v] = std::experimental::optional<i64>();
+        if (!vertices[u] ||
+            (vertices[u].value().cost != max && vertices[u].value().cost + d < vertices[v].value().cost)) {
+            vertices[v] = optional<C>();
         }
     }
 

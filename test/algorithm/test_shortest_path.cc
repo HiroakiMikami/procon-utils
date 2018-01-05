@@ -21,10 +21,14 @@ TYPED_TEST(g_BellmanFordTest, SimpleTest) {
 
     auto g = this->mkGraph(edges);
     auto ans = bellman_ford(g, 0);
+
+    using std::experimental::make_optional;
+    using optional = std::experimental::optional<size_t>;
+    using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
     EXPECT_EQ(3, ans.size());
-    EXPECT_EQ(0, ans[0].value());
-    EXPECT_EQ(3, ans[1].value());
-    EXPECT_EQ(1, ans[2].value());
+    EXPECT_EQ(C(0, optional()), ans[0].value());
+    EXPECT_EQ(C(3, make_optional(2)), ans[1].value());
+    EXPECT_EQ(C(1, make_optional(0)), ans[2].value());
 }
 TYPED_TEST(g_BellmanFordTest, NegativeEdgeTest) {
     /*
@@ -36,12 +40,17 @@ TYPED_TEST(g_BellmanFordTest, NegativeEdgeTest) {
     edges.push_back({0, 2, 10});
     edges.push_back({2, 1, -20});
 
+
     auto g = this->mkGraph(edges);
     auto ans = bellman_ford(g, 0);
+
+    using std::experimental::make_optional;
+    using optional = std::experimental::optional<size_t>;
+    using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
     EXPECT_EQ(3, ans.size());
-    EXPECT_EQ(0, ans[0].value());
-    EXPECT_EQ(-10, ans[1].value());
-    EXPECT_EQ(10, ans[2].value());
+    EXPECT_EQ(C(0, optional()), ans[0].value());
+    EXPECT_EQ(C(-10, make_optional(2)), ans[1].value());
+    EXPECT_EQ(C(10, make_optional(0)), ans[2].value());
 }
 TYPED_TEST(g_BellmanFordTest, NegativeCycleTest) {
     /*
@@ -57,7 +66,7 @@ TYPED_TEST(g_BellmanFordTest, NegativeCycleTest) {
     auto g = this->mkGraph(edges);
     auto ans = bellman_ford(g, 0);
     EXPECT_EQ(3, ans.size());
-    EXPECT_EQ(0, ans[0].value());
+    EXPECT_EQ(0, ans[0].value().cost);
     EXPECT_FALSE(ans[1]);
     EXPECT_FALSE(ans[2]);
 }
