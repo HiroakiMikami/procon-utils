@@ -12,6 +12,13 @@ struct CostWithPreviousVertex {
             : cost(cost), previous_vertex(previous_vertex) {}
     Cost cost;
     std::experimental::optional<size_t> previous_vertex;
+
+    bool operator==(const CostWithPreviousVertex<Cost> &rhs) const {
+        return this->cost == rhs.cost && this->previous_vertex == rhs.previous_vertex;
+    }
+    bool operator!=(const CostWithPreviousVertex<Cost> &rhs) const {
+        return !(*this == rhs);
+    }
 };
 
 template <class Graph>
@@ -53,23 +60,33 @@ std::vector<std::experimental::optional<CostWithPreviousVertex<typename Graph::E
 }
 
 template <class Graph>
-std::vector<std::vector<i64>> warshall_floyd(const Graph &g) {
-    auto max = std::numeric_limits<i64>::max();
+std::vector<std::vector<CostWithPreviousVertex<typename Graph::EdgeLabel>>> warshall_floyd(const Graph &g) {
+    using std::vector;
+    using std::experimental::optional;
+    using std::experimental::make_optional;
+    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+
+    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
+    CostWithPreviousVertex<typename Graph::EdgeLabel>(0, make_optional(0));
+
     auto N = g.vertices_size();
-    std::vector<std::vector<i64>> distance(N, std::vector<i64>(N, max));
+    vector<vector<C>> distance(N, vector<C>(N, C(max, optional<size_t>())));
 
     REP (k, N) {
-        distance[k][k] = 0;
+        distance[k][k] = C(0, optional<size_t>());
         for (auto edge: g.outgoings(k)) {
-            distance[k][get<1>(edge)] = get<2>(edge);
+            distance[k][get<1>(edge)] = C(get<2>(edge), make_optional(k));
         }
     }
 
     REP (k, N) {
         REP (i, N) {
             REP (j, N) {
-                if (distance[i][k] != max) {
-                    distance[i][j] = std::min(distance[i][j], distance[i][k] + distance[k][j]);
+                if (distance[i][k].cost != max && distance[k][j].cost != max &&
+                    distance[i][j].cost > distance[i][k].cost + distance[k][j].cost) {
+                    auto prev_opt = distance[k][j].previous_vertex;
+                    auto prev = prev_opt.value_or(k);
+                    distance[i][j] = C(distance[i][k].cost + distance[k][j].cost, make_optional(prev));
                 }
             }
         }

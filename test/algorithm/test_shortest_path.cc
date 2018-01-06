@@ -84,11 +84,17 @@ TYPED_TEST(g_WarshallFloydTest, SimpleTest) {
     edges.push_back({2, 1, 2});
     edges.push_back({1, 2, 2});
 
-
     auto g = this->mkGraph(edges);
+    using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
+    using std::experimental::optional;
+    using std::experimental::make_optional;
+    using std::vector;
     auto ans = warshall_floyd(g);
     EXPECT_EQ(3, ans.size());
-    EXPECT_EQ(std::vector<i64>({0, 3, 1}), ans[0]);
-    EXPECT_EQ(std::vector<i64>({3, 0, 2}), ans[1]);
-    EXPECT_EQ(std::vector<i64>({1, 2, 0}), ans[2]);
+    EXPECT_EQ(vector<C>({C(0, optional<size_t>()), C(3, make_optional(2)), C(1, make_optional(0))}),
+              ans[0]);
+    EXPECT_EQ(vector<C>({C(3, make_optional(2)), C(0, optional<size_t>()), C(2, make_optional(1))}),
+              ans[1]);
+    EXPECT_EQ(vector<C>({C(1, make_optional(2)), C(2, make_optional(2)), C(0, optional<size_t>())}),
+              ans[2]);
 }
