@@ -6,8 +6,31 @@
 #include "algorithm/shortest_path.cc"
 #include "../graph_utils.h"
 
+LABELED_GRAPH_TEST(DijkstraTest);
 LABELED_GRAPH_TEST(BellmanFordTest);
 LABELED_GRAPH_TEST(WarshallFloydTest);
+
+TYPED_TEST(g_DijkstraTest, SimpleTest) {
+    /*
+     * 0 -(5)----------> 1
+     *   -(1)-> 2 -(2)->
+     */
+    std::vector<std::tuple<size_t, size_t, int>> edges;
+    edges.push_back({0, 1, 5});
+    edges.push_back({0, 2, 1});
+    edges.push_back({2, 1, 2});
+
+    auto g = this->mkGraph(edges);
+    auto ans = dijkstra(g, 0);
+
+    using std::experimental::make_optional;
+    using optional = std::experimental::optional<size_t>;
+    using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
+    EXPECT_EQ(3, ans.size());
+    EXPECT_EQ(C(0, optional()), ans[0]);
+    EXPECT_EQ(C(3, make_optional(2)), ans[1]);
+    EXPECT_EQ(C(1, make_optional(0)), ans[2]);
+}
 
 TYPED_TEST(g_BellmanFordTest, SimpleTest) {
     /*

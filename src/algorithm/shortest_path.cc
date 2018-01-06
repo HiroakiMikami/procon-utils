@@ -22,6 +22,50 @@ struct CostWithPreviousVertex {
 };
 
 template <class Graph>
+std::vector<CostWithPreviousVertex<typename Graph::EdgeLabel>> dijkstra(const Graph &g, size_t start) {
+    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+    using optional = std::experimental::optional<size_t>;
+    using std::experimental::make_optional;
+    using std::vector;
+    using std::priority_queue;
+    using pair = std::pair<size_t, typename Graph::EdgeLabel>;
+    using std::make_pair;
+
+    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
+    auto N = g.vertices_size();
+    auto distance = vector<C>(N, C(max, optional()));
+    auto is_used = vector<bool>(N, false);
+    auto cmp = [&](const pair &v1, const pair &v2) { return v1.second > v2.second; };
+    auto Q = priority_queue<pair, vector<pair>, decltype(cmp)>(cmp);
+
+    distance[start] = C(0, optional());
+    REP (i, N) {
+        Q.push(make_pair(i, distance[i].cost));
+    }
+
+    while (!Q.empty()) {
+        auto u = Q.top().first;
+        Q.pop();
+
+        if (is_used[u]) {
+            continue ;
+        }
+        is_used[u] = true;
+
+        for (auto edge: g.outgoings(u)) {
+            auto v = get<1>(edge);
+            auto weight = get<2>(edge);
+            if (distance[u].cost != max && distance[v].cost > distance[u].cost + weight) {
+                distance[v] = C(distance[u].cost + weight, u);
+                Q.push(make_pair(v, distance[v].cost));
+            }
+        }
+    }
+
+    return distance;
+}
+
+template <class Graph>
 std::vector<std::experimental::optional<CostWithPreviousVertex<typename Graph::EdgeLabel>>> bellman_ford(const Graph &g, size_t start) {
     using std::experimental::optional;
     using std::experimental::make_optional;
