@@ -14,7 +14,7 @@ import onlinejudge.implementation.logging as log
 default_data_dir = os.path.join(os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share'), 'onlinejudge')
 default_cookie_path = os.path.join(default_data_dir, 'cookie.jar')
 
-with utils.session(cookiejar = default_cookie_path) as session:
+with utils.with_cookiejar(utils.new_default_session(), path = default_cookie_path) as session:
     session = session or requests.Session()
     url = sys.argv[1]
     # get
