@@ -4,6 +4,7 @@
 !*.cc
 !*.js
 !*.h
+!*.bash
 !.gitignore
 !CMakeLists.txt
 !/src/
