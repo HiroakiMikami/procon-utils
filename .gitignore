@@ -1,4 +1,5 @@
 *
+!*/
 
 # whitelist
 !*.cc
@@ -7,16 +8,11 @@
 !*.bash
 !.gitignore
 !CMakeLists.txt
-!/src/
-!/test/
-!/test/**
-!/src/**
 !/bin/procon
 
 !/install.sh
 !/init.sh
 !/procon
-!/workspace/
 !/tools/
 !/tools/package.json
 !/tools/allproblems.py

@@ -48,8 +48,8 @@ switch (subcommand) {
             const contestName = args[1]
 
             const createTemplate = (filePath) => {
-                const common = fs.readFileSync(`${base}/src/common.cc`, 'utf8')
-                const main = fs.readFileSync(`${base}/src/main.cc`, 'utf8')
+                const common = fs.readFileSync(`${base}/languages/cc/templates/src/common.cc`, 'utf8')
+                const main = fs.readFileSync(`${base}/languages/cc/templates/src/main.cc`, 'utf8')
 
                 return mkdir(path.dirname(filePath)).then(() => {
                     return fs.writeFileSync(filePath, common + "\n" + main, 'utf8')
