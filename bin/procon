@@ -1,0 +1,325 @@
+#!/bin/bash
+set -u
+
+# Set environment variable
+export CACHEDIR=$(mktemp -d)
+export W3MDIR=${HOME}/.procon/w3m
+export UTILS_BASE=$(realpath $(dirname $0)/../)
+mkdir -p $W3MDIR
+
+source $UTILS_BASE/scripts/util.bash
+
+function show_usage() {
+    cat << EOF
+Usage: $(basename $0) <command> <args>
+
+Commands:
+    login <service>
+    prepare <directory> [-l language] [<task_name>+]
+    stats [-o <output-dir>] <source file>+
+    update <source file>
+    test <source file> [-t <timeout>] [-n]
+EOF
+}
+
+if [ $# -eq 0 ]
+then
+    show_usage
+    exit 0
+fi
+
+command=$1
+shift 1
+
+function normalize() {
+    set -u
+    local path=$1
+
+    if [ -e $path ]
+    then
+        realpath --relative-to=$(pwd) $path
+    else
+        if [ $path = ${path##*.} ]
+        then
+            # Directory
+            mkdir -p $path
+            realpath --relative-to=$(pwd) $path
+        else
+            mkdir -p $(dirname $path)
+            realpath --relative-to=$(pwd) $(dirname $path)/$(basename $path)
+        fi
+    fi
+}
+
+function activate_service() {
+    set -u
+    source $UTILS_BASE/services/$service.bash
+    switch_w3m_config $service
+    dump "Service : $service"
+}
+function activate_language() {
+    source $UTILS_BASE/languages/$language.bash
+    dump "Language: $language"
+}
+
+function cmd_login() {
+    set -u
+    local service=$1
+    activate_service $service
+    login
+}
+function cmd_prepare() {
+    set -u
+    local target=$(normalize $1)
+    local service=$(echo $target | cut -f 2 -d "/")
+    local language="cc"
+    shift 1
+
+    while getopts l: OPT
+    do
+        case $OPT in
+            l)
+                language=$OPTARG
+                ;;
+            \?)
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    activate_service $service
+    activate_language $language
+
+    if [ $target = ${target##*.} ]
+    then
+        # Directory
+        if [ $# -eq 0 ]
+        then
+            for task in $(tasks $target)
+            do
+                dump "Create: $target/$task.$language"
+                create_newfile $target/$task.$language
+            done
+        else
+            for task in $@
+            do
+                dump "Create: $target/$task.$language"
+                create_newfile $target/$task.$language
+            done
+        fi
+    else
+        # Source
+        dump "Create $target"
+        create_newfile $target
+    fi
+}
+function cmd_stats() {
+    set -u
+    local outdir=./stats
+
+    while getopts o: OPT
+    do
+        case $OPT in
+            o)
+                outdir=$OPTARG
+                ;;
+            \?)
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    mkdir -p $outdir
+
+    echo "#FILES $#" > $outdir/results.txt
+    local n=$(grep -E "^AC true$" $@ | wc -l)
+    echo "#AC $n" >> $outdir/results.txt
+          n=$(grep -E "^WA true$" $@ | wc -l)
+    echo "#WA $n" >> $outdir/results.txt
+          n=$(grep -E "^TLE true$" $@ | wc -l)
+    echo "#TLE $n" >> $outdir/results.txt
+          n=$(grep -E "^MLE true$" $@ | wc -l)
+    echo "#MLE $n" >> $outdir/results.txt
+
+    cat $outdir/results.txt
+    echo
+
+    local tmpfile=$(mktemp)
+
+    grep -E "^TASK_TYPE .*$" $@ | sed -e 's/^.*TASK_TYPE //g' | tr " " "\n" > $tmpfile
+    cat $tmpfile | sort | uniq -c | sort -nr -k 1 > $outdir/task_type.txt
+    echo "Task Types"
+    head -n 5 $outdir/task_type.txt
+    echo
+
+    grep -E "^FAILURE_TYPE .*$" $@ | sed -e 's/^.*FAILURE_TYPE //g' | tr " " "\n" > $tmpfile
+    cat $tmpfile | sort | uniq -c | sort -nr -k 1 > $outdir/failure_type.txt
+    echo "Failure Types"
+    head -n 5 $outdir/failure_type.txt
+
+    rm -rf $tmpfile
+}
+function cmd_update() {
+    set -u
+    local target=$(normalize $1)
+    local service=$(echo $target | cut -f 2 -d "/")
+
+    activate_service $service
+
+    local url=$(task_url $target)
+    local score=$(score $target)
+    local tmp=$(submit_results $target)
+    local ac=$(echo $tmp | cut -f 1 -d " ")
+    local wa=$(echo $tmp | cut -f 2 -d " ")
+    local tle=$(echo $tmp | cut -f 3 -d " ")
+    local mle=$(echo $tmp | cut -f 3 -d " ")
+
+    sed -i -e "s|^URL .*$|URL $url|" \
+           -e "s/^SCORE.*\$/SCORE $score/" \
+           -e "s/^AC.*\$/AC $ac/" \
+           -e "s/^WA.*\$/WA $wa/" \
+           -e "s/^TLE.*\$/TLE $tle/" \
+           -e "s/^MLE.*\$/MLE $mle/" \
+           $target
+}
+function cmd_test() {
+    set -u
+    local target=$(normalize $1)
+    local service=$(echo $target | cut -f 2 -d "/")
+    local filename=$(basename $1)
+    filename=${filename%.*}
+    local language=${target##*.}
+    local new_testcase="false"
+    local timeout_time=10
+
+    shift 1
+
+    while getopts t:n OPT
+    do
+        case $OPT in
+            n)
+                new_testcase="true"
+                ;;
+            t)
+                timeout_time=$OPTARG
+                ;;
+            \?)
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    activate_service $service
+    activate_language  $language
+
+    function run_test() {
+        local i=$1
+        local infile=$sample_dir/sample$i.in
+        local outfile=$sample_dir/sample$i.out
+        local tmpfile1=$(mktemp)
+        local tmpfile2=$(mktemp)
+
+        echo "Start testcase $i"
+        export -f execute
+        cat $infile | \
+            execute $target \
+                timeout $timeout_time \
+                /usr/bin/time -f '%e-%K' -o $tmpfile1 > $tmpfile2
+            
+        STATUS=$?
+        if [ $STATUS -eq 124 ]
+        then
+            echo "  TLE (over $timeout_time seconds)"
+        else
+            if diff $outfile $tmpfile2 > /dev/null
+            then
+                echo "  AC"
+                local t=$(cut -f 1 -d "-" $tmpfile1)
+                local m=$(cut -f 2 -d "-" $tmpfile1)
+                echo "Time: $t[sec]    Memory: $m[KB]"
+            else
+                echo "  WA"
+                sdiff -s $outfile $tmpfile2
+            fi
+        fi
+        echo
+
+        rm -rf $tmpfile1 $tmpfile2
+    }
+
+    sample_dir=$(dirname $target)/test-$filename
+    if [ "${new_testcase}" = "true" ]
+    then
+        mkdir -p $sample_dir
+        num_of_samples=$(ls $sample_dir/*.in | wc -l)
+        i=$(( $num_of_samples ))
+        echo -n "Delimiter (e.g., EOF):"
+        read delimiter
+        echo "Input Text:"
+        while read line
+        do
+            if [ "$line" = "$delimiter" ]
+            then
+                break
+            fi
+
+            echo $line >> $sample_dir/sample$i.in
+        done
+
+        echo "Output Text:"
+        while read line
+        do
+            if [ "$line" = "$delimiter" ]
+            then
+                break
+            fi
+
+            echo $line >> $sample_dir/sample$i.out
+        done
+
+        run_test $i
+    else
+        if [ ! -e $sample_dir ]
+        then
+            # Download testcases
+            dump "Start download"
+            n=$(testcases $target $sample_dir)
+            dump "Download $n testcases"
+        fi
+        
+        for infile in $(ls $sample_dir/*.in)
+        do
+            i=$(echo $(basename $infile) | sed -e 's/^sample//g' -e 's/\.in//g')
+            run_test $i        
+        done
+    fi
+}
+
+case $command in
+    "login")
+        cmd_login $@
+        ;;
+    "prepare")
+        cmd_prepare $@
+        ;;
+    "update")
+        cmd_update $@
+        ;;
+    "stats")
+        cmd_stats $@
+        ;;
+    "test")
+        cmd_test $@
+        ;;
+    *)
+        show_usage
+        ;;
+esac
+
+rm -rf $CACHEDIR

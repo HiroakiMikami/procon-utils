@@ -11,6 +11,7 @@
 !/test/
 !/test/**
 !/src/**
+!/bin/procon
 
 !/install.sh
 !/init.sh
