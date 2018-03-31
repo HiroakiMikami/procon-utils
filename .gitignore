@@ -9,6 +9,7 @@
 !.gitignore
 !CMakeLists.txt
 !/bin/procon
+!services/test/*/*.html
 
 !/install.sh
 !/init.sh
