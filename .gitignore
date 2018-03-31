@@ -8,12 +8,6 @@
 !*.bash
 !.gitignore
 !CMakeLists.txt
+!/init.sh
 !/bin/procon
 !services/test/*/*.html
-
-!/install.sh
-!/init.sh
-!/procon
-!/tools/
-!/tools/package.json
-!/tools/allproblems.py
