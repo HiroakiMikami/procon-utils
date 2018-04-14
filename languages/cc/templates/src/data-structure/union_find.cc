@@ -5,7 +5,7 @@
 struct UnionFind {
     UnionFind() : m_parents(0), m_rank(0) {}
     UnionFind(size_t N) : m_parents(N), m_rank(N) {
-        for (auto i = 0; i < N; i++) {
+        REP (i, N) {
             m_parents[i] = i;
             m_rank[i] = 0;
         }

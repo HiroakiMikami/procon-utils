@@ -1,3 +1,5 @@
+#include <type_traits>
+
 #ifndef MAIN
 #include "common.cc"
 #endif
@@ -18,7 +20,7 @@ i32 to(const string &str) {
 
 V<string> split(const string &str, const string &delimiter) {
     V<string> ret;
-    auto pos = 0;
+    std::remove_const_t<decltype(string::npos)> pos = 0;
     while (pos != string::npos) {
         auto p = str.find(delimiter, pos);
         if (p == string::npos) {

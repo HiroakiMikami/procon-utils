@@ -77,7 +77,7 @@ struct AdjacencyList {
     AdjacencyList() {}
     AdjacencyList(size_t vertex_num) : m_list(vertex_num) {}
 
-    const size_t vertices_size() const {
+    size_t vertices_size() const {
         return this->m_list.size();
     }
 
@@ -128,8 +128,8 @@ struct AdjacencyList {
         return this->m_list.size() - 1;
     }
     void remove_vertex(size_t n) {
-        for (auto i = 0; i < this->m_list.size(); ++i) {
-            if (i == n) {
+        REP (i, this->m_list.size()) {
+            if (static_cast<size_t>(i) == n) {
                 this->m_list[i].clear();
             } else {
                 auto &edges = this->m_list[i];
@@ -229,7 +229,7 @@ struct AdjacencyMatrix {
 
     AdjacencyMatrix(size_t vertex_num) : m_matrix(vertex_num, Row(vertex_num)) {}
 
-    const size_t vertices_size() const {
+    size_t vertices_size() const {
         return this->m_matrix.size();
     }
 
@@ -282,7 +282,7 @@ struct AdjacencyMatrix {
     void remove_vertex(size_t n) {
         REP (i, this->m_matrix.size()) {
             REP (j, this->m_matrix.size()) {
-                if (i == n || j == n) {
+                if (static_cast<size_t>(i) == n || static_cast<size_t>(j) == n) {
                     this->m_matrix[i][j] = Element();
                 }
             }

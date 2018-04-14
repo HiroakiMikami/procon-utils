@@ -48,7 +48,6 @@ template <class Graph>
 std::pair<typename Graph::EdgeLabel, std::vector<Edge<typename Graph::EdgeLabel>>> kruskal(const Graph &g) {
     using std::vector;
     using std::unordered_set;
-    using optional = std::experimental::optional<Edge<typename Graph::EdgeLabel>>;
     using std::experimental::make_optional;
     using _Edge = Edge<typename Graph::EdgeLabel>;
 
