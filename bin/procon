@@ -176,7 +176,7 @@ function cmd_update() {
     local ac=$(echo $tmp | cut -f 1 -d " ")
     local wa=$(echo $tmp | cut -f 2 -d " ")
     local tle=$(echo $tmp | cut -f 3 -d " ")
-    local mle=$(echo $tmp | cut -f 3 -d " ")
+    local mle=$(echo $tmp | cut -f 4 -d " ")
 
     sed -i -e "s|^URL .*$|URL $url|" \
            -e "s/^SCORE.*\$/SCORE $score/" \
