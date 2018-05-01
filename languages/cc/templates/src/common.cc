@@ -31,7 +31,7 @@ template <class T> using V = vector<T>;
 #define FOR(i, n, m) for (i64 i = (n); i < static_cast<decltype(i)>(m); ++i)
 #define FORR(i, n, m) for (i64 i = (m) - 1; i >= static_cast<decltype(i)>(n); --i)
 
-#define FORE(x, xs) for (auto &x: (xs))
+#define EACH(x, xs) for (auto &x: (xs))
 
 // Macros
 #define CTR(x) (x).begin(), (x).end()
