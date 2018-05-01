@@ -249,9 +249,9 @@ function cmd_test() {
                 sdiff -s $outfile $tmpfile2
             fi
         fi
-        echo
 
         rm -rf $tmpfile1 $tmpfile2
+        return $STATUS
     }
 
     sample_dir=$(dirname $target)/test-$filename
@@ -297,7 +297,12 @@ function cmd_test() {
         for infile in $(ls $sample_dir/*.in)
         do
             i=$(echo $(basename $infile) | sed -e 's/^sample//g' -e 's/\.in//g')
-            run_test $i        
+            run_test $i
+            status=$?
+            if [ $status -ne 0 ]
+            then
+                break
+            fi
         done
     fi
 }
