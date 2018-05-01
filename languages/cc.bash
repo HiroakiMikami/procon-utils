@@ -41,7 +41,6 @@ function execute() {
     local build_dir=${BUILD_DIR:-./build}
 
     # Build executable
-    make -C $build_dir $executable 1>&2
-
-    $@ $build_dir/src/$executable < /dev/stdin
+    make -C $build_dir $executable 1>&2 &&
+        $@ $build_dir/src/$executable < /dev/stdin
 }

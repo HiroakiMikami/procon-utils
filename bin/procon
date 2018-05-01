@@ -236,7 +236,8 @@ function cmd_test() {
         if [ $STATUS -eq 124 ]
         then
             echo "  TLE (over $timeout_time seconds)"
-        else
+        elif [ $STATUS -eq 0 ]
+        then
             if diff $outfile $tmpfile2 > /dev/null
             then
                 echo "  AC"
