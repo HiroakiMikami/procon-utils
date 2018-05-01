@@ -41,6 +41,11 @@ function execute() {
     local build_dir=${BUILD_DIR:-./build}
 
     # Build executable
-    make -C $build_dir $executable 1>&2 &&
+    if make -C $build_dir $executable --just-print | grep "Building CXX object" > /dev/null
+    then
+        make -C $build_dir $executable 1>&2 &&
+            $@ $build_dir/src/$executable < /dev/stdin
+    else
         $@ $build_dir/src/$executable < /dev/stdin
+    fi
 }

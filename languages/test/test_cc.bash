@@ -39,6 +39,7 @@ EOF
 
     cat <<EOF > $BUILD_DIR/Makefile
 test:
+	echo "Building CXX object" # dummy CMake message
 	mkdir -p $BUILD_DIR/src
 	echo "cat /dev/stdin" > $BUILD_DIR/src/test
 	chmod u+x $BUILD_DIR/src/test
