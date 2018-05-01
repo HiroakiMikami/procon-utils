@@ -259,7 +259,7 @@ function cmd_test() {
     then
         mkdir -p $sample_dir
         num_of_samples=$(ls $sample_dir/*.in | wc -l)
-        i=$(( $num_of_samples ))
+        i=$(( $num_of_samples + 1 ))
         echo -n "Delimiter (e.g., EOF):"
         read delimiter
         echo "Input Text:"
