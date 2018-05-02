@@ -148,7 +148,7 @@ struct AdjacencyList {
             es.push_back(edge);
         }
 
-        FORE (edge, es) {
+        EACH (edge, es) {
             this->add_edge(edge);
         }
     }
@@ -296,7 +296,7 @@ struct AdjacencyMatrix {
             es.push_back(edge);
         }
 
-        FORE (edge, es) {
+        EACH (edge, es) {
             this->add_edge(edge);
         }
     }
