@@ -94,6 +94,13 @@ namespace tuple_utils {
 }
 
 // STL support
+template <typename V>
+std::vector<V> pre_allocated_vector(size_t N) {
+    std::vector<V> retval;
+    retval.reserve(N);
+    return retval;
+}
+
 template <class Iterator>
 struct Container {
     Container(const Iterator &begin, const Iterator &end) : m_begin(begin), m_end(end) {}
