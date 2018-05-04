@@ -142,17 +142,16 @@ template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
 
 /* utils for std::vector */
 template <typename V>
-std::vector<V> pre_allocated_vector(size_t N) {
+std::vector<V> make_pre_allocated_vector(size_t N) {
     std::vector<V> retval;
     retval.reserve(N);
     return retval;
 }
 
 template <class V, int N>
-Matrix<V, N> matrix(const std::array<size_t, N> &shape, V default_value = V()) {
+Matrix<V, N> make_matrix(const std::array<size_t, N> &shape, V default_value = V()) {
     return internal::vector_utils::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
 }
-
 /* utils for STL containers */
 template <class Iterator>
 struct Container {
@@ -166,6 +165,154 @@ struct Container {
     Iterator m_begin;
     Iterator m_end;
 };
+
+/* utils for STL iterators */
+template <typename Iterator, typename F>
+struct MappedIterator {
+    MappedIterator(const Iterator &it, const F &function) : it(it), function(function) {}
+    auto operator *() const {
+        return this->function(*this->it);
+    }
+    void operator++() { ++this->it; }
+    void operator+=(size_t n) { this->it += n; }
+    auto operator+(size_t n) const {
+        return MappedIterator<Iterator, F>(this->it + n, this->function);
+    }
+    bool operator==(const MappedIterator<Iterator, F> &rhs) const {
+        return this->it == rhs.it;
+    }
+    bool operator!=(const MappedIterator<Iterator, F> &rhs) const {
+        return !(*this == rhs);
+    }
+private:
+    Iterator it;
+    F function;
+};
+template <typename Iterator, typename P>
+struct FilteredIterator {
+    FilteredIterator(const Iterator &it, const Iterator &end, const P &predicate)
+            : it(it), end(end), predicate(predicate) {
+        if (this->it != end) {
+            if (!predicate(*this->it)) {
+                this->increment();
+            }
+        }
+    }
+    decltype(auto) operator *() const {
+        return *this->it;
+    }
+    void operator++() {
+        this->increment();
+    }
+    void operator+=(size_t n) {
+        REP (i, n) {
+            this->increment();
+        }
+    }
+    auto operator+(size_t n) const {
+        auto retval = *this;
+        retval += n;
+        return retval;
+    }
+    bool operator==(const FilteredIterator<Iterator, P> &rhs) const {
+        return this->it == rhs.it;
+    }
+    bool operator!=(const FilteredIterator<Iterator, P> &rhs) const {
+        return !(*this == rhs);
+    }
+private:
+    void increment() {
+        if (this->it == this->end) {
+            return ;
+        }
+        ++this->it;
+        while (this->it != this->end && !this->predicate(*this->it)) {
+            ++this->it;
+        }
+    }
+    Iterator it;
+    Iterator end;
+    P predicate;
+};
+template <typename Iterator, typename ElementIterator>
+struct FlattenedIterator {
+    FlattenedIterator(const Iterator &it, const Iterator &end) : it(it), end(end), elem_it() {
+        if (this->it != this->end) {
+            this->elem_it = it->begin();
+        }
+    }
+    decltype(auto) operator *() const {
+        return *this->elem_it;
+    }
+    void operator++() {
+        this->increment();
+    }
+    void operator+=(size_t n) {
+        REP (i, n) {
+            this->increment();
+        }
+    }
+    auto operator+(size_t n) const {
+        auto retval = *this;
+        retval += n;
+        return retval;
+    }
+    bool operator==(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
+        if (this->it != rhs.it) {
+            return false;
+        }
+        if (this->it == this->end || rhs.it == rhs.end) {
+            if (this->end == rhs.end) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return this->elem_it == rhs.elem_it;
+        }
+    }
+    bool operator!=(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
+        return !(*this == rhs);
+    }
+private:
+    void increment() {
+        if (this->it == this->end) return ;
+
+        ++this->elem_it;
+        if (this->elem_it == this->it->end()) {
+            ++this->it;
+            if (this->it != this->end) {
+                this->elem_it = this->it->begin();
+            }
+        }
+    }
+    Iterator it;
+    Iterator end;
+    ElementIterator elem_it;
+};
+
+template <typename C, typename F>
+auto iterator_map(const C &c, F function) {
+    using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
+    return Container<MappedIterator<Iterator, F>>(MappedIterator<Iterator, F>(c.begin(), function),
+            MappedIterator<Iterator, F>(c.end(), function));
+}
+
+template <typename C, typename P>
+auto iterator_filter(const C &c, P predicate) {
+    using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
+    return Container<FilteredIterator<Iterator, P>>(FilteredIterator<Iterator, P>(c.begin(), c.end(), predicate),
+                                                    FilteredIterator<Iterator, P>(c.end(), c.end(), predicate));
+}
+
+template <typename C>
+auto iterator_flatten(const C &c) {
+    using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
+    using ElementIterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin()->begin())>>;
+    return Container<FlattenedIterator<Iterator, ElementIterator>>(
+            FlattenedIterator<Iterator, ElementIterator>(c.begin(), c.end()),
+            FlattenedIterator<Iterator, ElementIterator>(c.end(), c.end()));
+}
 
 /* utils for STL iterators (TODO deprecated because it is too complex) */
 template <class Functions>
@@ -280,7 +427,7 @@ tuple<T1, T2, T3, Args...> read() {
 }
 template <typename T, typename F = std::function<T()>>
 Vector<T> read(const usize length, F r) {
-    auto retval = pre_allocated_vector<T>(length);
+    auto retval = make_pre_allocated_vector<T>(length);
     REP (i, length) {
         retval.emplace_back(r());
     }
