@@ -71,7 +71,7 @@ TEST(InputTest, ReadMultiDimentionalArrayTest) {
 
     cin.rdbuf(prev);
 
-    auto expected = matrix<int, 2>({2, 2});
+    auto expected = make_matrix<int, 2>({2, 2});
     expected[0][0] = 0;
     expected[0][1] = 10;
     expected[1][0] = 1;
