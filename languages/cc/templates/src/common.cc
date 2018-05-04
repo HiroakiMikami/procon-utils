@@ -300,45 +300,77 @@ Vector<tuple<T1, T2, T3, Args...>> read(const usize length) {
     return read<tuple<T1, T2, T3, Args...>>(length);
 }
 
-/* Output */
-namespace debug {
-    template <class F, class S>
-    ostream &operator<<(ostream& stream, const pair<F, S> &pair) {
-        stream << "{" << pair.first << ", " << pair.second << "}";
-        return stream;
+/* debug output */
+template <class F, class S>
+ostream &operator<<(ostream& stream, const pair<F, S> &pair) {
+    stream << "{" << pair.first << ", " << pair.second << "}";
+    return stream;
+}
+template <class ...Args>
+ostream &operator<<(ostream& stream, const tuple<Args...> &tuple) {
+    stream << "{";
+    internal::tuple_utils::print(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
+    stream << "}";
+    return stream;
+}
+
+template <typename T>
+void dump(const T& t) {
+    std::cerr << t << std::endl;
+}
+template <typename F, typename S>
+void dump(const pair<F, S>& p) {
+    std::cerr << p << std::endl;
+}
+template <class ...Args>
+void dump(const tuple<Args...> &tuple) {
+    std::cerr << tuple << std::endl;
+}
+template <typename V1, typename V2, typename ...Args>
+void dump(const V1 &v1, const V2 &v2, const Args&... args) {
+    const auto x = std::make_tuple(v1, v2, args...);
+    internal::tuple_utils::print(std::cerr, x, internal::tuple_utils::gen_seq<sizeof...(Args) + 2>());
+    std::cerr << std::endl;
+}
+
+template <typename T>
+void dump_matrix(const Matrix<T, 0> & matrix) {
+    dump(matrix);
+}
+template <typename T>
+void dump_matrix(const Matrix<T, 1> & matrix) {
+    EACH (x, matrix) {
+        std::cerr << x << " ";
     }
-    template <class ...Args>
-    ostream &operator<<(ostream& stream, const tuple<Args...> &tuple) {
-        stream << "{";
-        internal::tuple_utils::print(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
-        stream << "}";
-        return stream;
+    std::cerr << std::endl;
+}
+template <typename T>
+void dump_matrix(const Matrix<T, 2> & matrix) {
+    EACH (x, matrix) {
+        dump_matrix<T>(x);
     }
+}
 
-    template <class Iterator>
-    Container<Iterator> container(const Iterator &begin, const Iterator &end) {
-        return Container<Iterator>(begin, end);
+template <typename C>
+void dump_set(const C &container) {
+    EACH(c, container) {
+        dump(c);
     }
-
-    template <class Iterator>
-    ostream &operator<<(ostream &stream, const Container<Iterator> &container) {
-        stream << "[";
-
-        size_t cnt = 0;
-        for (const auto &it: container) {
-            stream << it;
-            stream << "," << ((cnt % 10 == 9) ? "\n " : "\t");
-
-            cnt += 1;
-        }
-
-        stream << "\b\b]";
-        return stream;
+}
+template <typename C>
+void dump_seq(const C &container) {
+    int index = 0;
+    EACH(c, container) {
+        dump(index, c);
+        index += 1;
     }
-
-    template <class T, class Alloc>
-    ostream &operator<<(ostream& stream, const vector<T, Alloc> &vector) {
-        return stream << container(vector.begin(), vector.end());
+}
+template <typename C>
+void dump_map(const C &container) {
+    EACH(c, container) {
+        const auto &key = c.first;
+        const auto &value = c.second;
+        std::cerr << key << "\t:" << value << std::endl;
     }
 }
 
