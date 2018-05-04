@@ -62,3 +62,19 @@ TEST(InputTest, ReadTupleVectorTest) {
     auto expected = V<tuple<int, int, char>>({make_tuple(0, 10, 'f')});
     EXPECT_EQ(expected, vector);
 }
+
+TEST(InputTest, ReadMultiDimentionalArrayTest) {
+    stringbuf buf;
+    buf.sputn("0 10\n1 20", 9);
+    auto prev = cin.rdbuf(&buf);
+    auto actual = read<Vector<int>>(2, [] { return read<int>(2); });
+
+    cin.rdbuf(prev);
+
+    auto expected = matrix<int, 2>({2, 2});
+    expected[0][0] = 0;
+    expected[0][1] = 10;
+    expected[1][0] = 1;
+    expected[1][1] = 20;
+    EXPECT_EQ(expected, actual);
+}

@@ -14,6 +14,7 @@
 #include <numeric>
 #include <iomanip>
 #include <type_traits>
+#include <functional>
 
 using namespace std; // TODO Remove this
 
@@ -277,30 +278,26 @@ tuple<T1, T2, T3, Args...> read() {
     cin >> t;
     return t;
 }
+template <typename T, typename F = std::function<T()>>
+Vector<T> read(const usize length, F r) {
+    auto retval = pre_allocated_vector<T>(length);
+    REP (i, length) {
+        retval.emplace_back(r());
+    }
+    return retval;
+}
 
 template <class T>
-V<T> read(const int length) {
-    V<T> ts(length);
-    for (auto& t: ts) {
-        cin >> t;
-    }
-    return ts;
+Vector<T> read(const usize length) {
+    return read<T>(length, [] { return read<T>(); });
 }
 template <class F, class S>
-V<pair<F, S>> read(const int length) {
-    V<pair<F, S>> ps(length);
-    for (auto& p: ps) {
-        cin >> p;
-    }
-    return ps;
+Vector<pair<F, S>> read(const usize length) {
+    return read<pair<F, S>>(length);
 }
 template <class T1, class T2, class T3, class ...Args>
-V<tuple<T1, T2, T3, Args...>> read(const int length) {
-    V<tuple<T1, T2, T3, Args...>> ts(length);
-    for (auto& t: ts) {
-        cin >> t;
-    }
-    return ts;
+Vector<tuple<T1, T2, T3, Args...>> read(const usize length) {
+    return read<tuple<T1, T2, T3, Args...>>(length);
 }
 
 /* Output */
