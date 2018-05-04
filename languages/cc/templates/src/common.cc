@@ -101,6 +101,36 @@ std::vector<V> pre_allocated_vector(size_t N) {
     return retval;
 }
 
+template <typename V, int N>
+struct matrix_t {
+    using type = std::vector<typename matrix_t<V, N-1>::type>;
+};
+template <typename V>
+struct matrix_t<V, 0> {
+    using type = V;
+};
+template <typename V, int N>
+using Matrix = typename matrix_t<V, N>::type;
+
+namespace internal {
+    template <typename V, typename It, int N>
+    struct matrix_helper {
+        static Matrix<V, N> create(const It &begin, const It &end, const V &default_value) {
+            return Matrix<V, N>(*begin, matrix_helper<V, It, N - 1>::create(begin + 1, end, default_value));
+        }
+    };
+    template <typename V, typename It>
+    struct matrix_helper<V, It, 0> {
+        static Matrix<V, 0> create(const It &begin, const It &end, const V &default_value) {
+            return default_value;
+        }
+    };
+}
+template <class V, int N>
+Matrix<V, N> matrix(const std::array<size_t, N> &shape, V default_value = V()) {
+    return internal::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
+}
+
 template <class Iterator>
 struct Container {
     Container(const Iterator &begin, const Iterator &end) : m_begin(begin), m_end(end) {}
