@@ -15,85 +15,131 @@
 #include <iomanip>
 #include <type_traits>
 
-using namespace std;
+using namespace std; // TODO Remove this
 
-// Type aliases
-using i8  =  int8_t; using  u8 =  uint8_t;
-using i16 = int16_t; using u16 = uint16_t;
-using i32 = int32_t; using u32 = uint32_t;
-using i64 = int64_t; using u64 = uint64_t;
-
-template <class T> using V = vector<T>;
-
-// Loops
+/* macros */
+// loops
 #define REP(i, n) for (i64 i = 0; i < static_cast<decltype(i)>(n); ++i)
 #define REPR(i, n) for (i64 i = (n) - 1; i >= static_cast<decltype(i)>(0); --i)
 #define FOR(i, n, m) for (i64 i = (n); i < static_cast<decltype(i)>(m); ++i)
 #define FORR(i, n, m) for (i64 i = (m) - 1; i >= static_cast<decltype(i)>(n); --i)
-
 #define EACH(x, xs) for (auto &x: (xs))
 
-// Macros
+// helpers
 #define CTR(x) (x).begin(), (x).end()
 
-// Utils for Tuple
-namespace tuple_utils {
-    template<size_t...> struct seq{};
+/* internal code */
+namespace internal {
+    /* utils for std::tuple */
+    namespace tuple_utils {
+        template<size_t...>
+        struct seq {};
 
-    template<size_t N, size_t... Is>
-    struct gen_seq : gen_seq<N - 1, N - 1, Is...>{};
+        template<size_t N, size_t... Is>
+        struct gen_seq : gen_seq<N - 1, N - 1, Is...> {};
 
-    template<size_t... Is>
-    struct gen_seq<0, Is...> : seq<Is...>{};
+        template<size_t... Is>
+        struct gen_seq<0, Is...> : seq<Is...> {};
 
-    template <class Tuple, size_t... Is>
-    void read(istream &stream, Tuple &t, seq<Is...>) {
-        static_cast<void>((int[]){0, (void(stream  >> get<Is>(t)), 0)...});
-    }
-
-    template<class Tuple, size_t... Is>
-    void print(ostream& stream, Tuple const& t, seq<Is...>) {
-        static_cast<void>((int[]){0, (void(stream << (Is == 0 ?  "" : ", ") << get<Is>(t)), 0)...});
-    }
-
-    template <size_t I, class F, class A, class... Elems>
-    struct ForEach {
-        void operator()(A &arg, tuple<Elems...> const& t) const {
-            F()(arg, get<I>(t));
-            ForEach<I - 1, F, A, Elems...>()(arg, t);
-        };
-        void operator()(A &arg, tuple<Elems...>& t) const {
-            F()(arg, get<I>(t));
-            ForEach<I - 1, F, A, Elems...>()(arg, t);
-        };
-    };
-    template <class F, class A, class... Elems>
-    struct ForEach<0, F, A, Elems...> {
-        void operator()(A &arg, tuple<Elems...> const& t) const {
-            F()(arg, get<0>(t));
-        };
-        void operator()(A &arg, tuple<Elems...>& t) const {
-            F()(arg, get<0>(t));
-        };
-    };
-    template <class F, class A, class... Elems>
-    void for_each(A &arg, tuple<Elems...> const& t) {
-        ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
-    };
-    template <class F, class A, class... Elems>
-    void for_each(A &arg, tuple<Elems...>& t) {
-        ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
-    };
-
-    struct hash_for_element {
-        template <class V>
-        void operator()(size_t &size, const V& v) const {
-            size ^= hash<V>()(v);
+        template<class Tuple, size_t... Is>
+        void read(istream &stream, Tuple &t, seq<Is...>) {
+            static_cast<void>((int[]) {0, (void(stream >> get<Is>(t)), 0)...});
         }
-    };
+
+        template<class Tuple, size_t... Is>
+        void print(ostream &stream, Tuple const &t, seq<Is...>) {
+            static_cast<void>((int[]) {0, (void(stream << (Is == 0 ? "" : ", ") << get<Is>(t)), 0)...});
+        }
+
+        template<size_t I, class F, class A, class... Elems>
+        struct ForEach {
+            void operator()(A &arg, tuple<Elems...> const &t) const {
+                F()(arg, get<I>(t));
+                ForEach<I - 1, F, A, Elems...>()(arg, t);
+            }
+
+            void operator()(A &arg, tuple<Elems...> &t) const {
+                F()(arg, get<I>(t));
+                ForEach<I - 1, F, A, Elems...>()(arg, t);
+            }
+        };
+
+        template<class F, class A, class... Elems>
+        struct ForEach<0, F, A, Elems...> {
+            void operator()(A &arg, tuple<Elems...> const &t) const {
+                F()(arg, get<0>(t));
+            }
+
+            void operator()(A &arg, tuple<Elems...> &t) const {
+                F()(arg, get<0>(t));
+            }
+        };
+
+        template<class F, class A, class... Elems>
+        void for_each(A &arg, tuple<Elems...> const &t) {
+            ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
+        }
+
+        template<class F, class A, class... Elems>
+        void for_each(A &arg, tuple<Elems...> &t) {
+            ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
+        }
+
+        struct hash_for_element {
+            template<class V>
+            void operator()(size_t &size, const V &v) const {
+                size ^= hash<V>()(v);
+            }
+        };
+    }
+
+    /* utils for std::vector */
+    namespace vector_utils {
+        template <typename V, int N>
+        struct matrix_t {
+            using type = std::vector<typename matrix_t<V, N-1>::type>;
+        };
+        template <typename V>
+        struct matrix_t<V, 0> {
+            using type = V;
+        };
+
+        template <typename V, int N>
+        using Matrix = typename internal::vector_utils::matrix_t<V, N>::type;
+
+        template <typename V, typename It, int N>
+        struct matrix_helper {
+            static Matrix<V, N> create(const It &begin, const It &end, const V &default_value) {
+                return Matrix<V, N>(*begin, matrix_helper<V, It, N - 1>::create(begin + 1, end, default_value));
+            }
+        };
+        template <typename V, typename It>
+        struct matrix_helper<V, It, 0> {
+            static Matrix<V, 0> create(const It &begin, const It &end, const V &default_value) {
+                return default_value;
+            }
+        };
+    }
 }
 
-// STL support
+
+/* Primitive types */
+using i8  =  int8_t; using  u8 =  uint8_t;
+using i16 = int16_t; using u16 = uint16_t;
+using i32 = int32_t; using u32 = uint32_t;
+using i64 = int64_t; using u64 = uint64_t;
+using usize = size_t;
+
+/* Data structure type */
+template <class T> using V = vector<T>; // TODO Replace with Vector
+template <typename T> using Vector = internal::vector_utils::Matrix<T, 1>;
+template <typename T, int N> using Matrix = internal::vector_utils::Matrix<T, N>;
+template <typename V> using OrderedSet = std::set<V>;
+template <typename V> using HashSet = std::unordered_set<V>;
+template <typename K, typename V> using OrderedMap = std::map<K, V>;
+template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
+
+/* utils for std::vector */
 template <typename V>
 std::vector<V> pre_allocated_vector(size_t N) {
     std::vector<V> retval;
@@ -101,36 +147,12 @@ std::vector<V> pre_allocated_vector(size_t N) {
     return retval;
 }
 
-template <typename V, int N>
-struct matrix_t {
-    using type = std::vector<typename matrix_t<V, N-1>::type>;
-};
-template <typename V>
-struct matrix_t<V, 0> {
-    using type = V;
-};
-template <typename V, int N>
-using Matrix = typename matrix_t<V, N>::type;
-
-namespace internal {
-    template <typename V, typename It, int N>
-    struct matrix_helper {
-        static Matrix<V, N> create(const It &begin, const It &end, const V &default_value) {
-            return Matrix<V, N>(*begin, matrix_helper<V, It, N - 1>::create(begin + 1, end, default_value));
-        }
-    };
-    template <typename V, typename It>
-    struct matrix_helper<V, It, 0> {
-        static Matrix<V, 0> create(const It &begin, const It &end, const V &default_value) {
-            return default_value;
-        }
-    };
-}
 template <class V, int N>
 Matrix<V, N> matrix(const std::array<size_t, N> &shape, V default_value = V()) {
-    return internal::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
+    return internal::vector_utils::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
 }
 
+/* utils for STL containers */
 template <class Iterator>
 struct Container {
     Container(const Iterator &begin, const Iterator &end) : m_begin(begin), m_end(end) {}
@@ -144,6 +166,7 @@ struct Container {
     Iterator m_end;
 };
 
+/* utils for STL iterators (TODO deprecated because it is too complex) */
 template <class Functions>
 struct BaseIterator {
     using State = typename Functions::State;
@@ -223,7 +246,7 @@ private:
     Functions func;
 };
 
-// Input
+/* input */
 template <class F, class S>
 istream &operator>>(istream &stream, pair<F, S> &pair) {
     stream >> pair.first;
@@ -232,7 +255,7 @@ istream &operator>>(istream &stream, pair<F, S> &pair) {
 }
 template <class ...Args>
 istream &operator>>(istream &stream, tuple<Args...> &tuple) {
-    tuple_utils::read(stream, tuple, tuple_utils::gen_seq<sizeof...(Args)>());
+    internal::tuple_utils::read(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
     return stream;
 }
 
@@ -280,7 +303,7 @@ V<tuple<T1, T2, T3, Args...>> read(const int length) {
     return ts;
 }
 
-// Output
+/* Output */
 namespace debug {
     template <class F, class S>
     ostream &operator<<(ostream& stream, const pair<F, S> &pair) {
@@ -290,7 +313,7 @@ namespace debug {
     template <class ...Args>
     ostream &operator<<(ostream& stream, const tuple<Args...> &tuple) {
         stream << "{";
-        tuple_utils::print(stream, tuple, tuple_utils::gen_seq<sizeof...(Args)>());
+        internal::tuple_utils::print(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
         stream << "}";
         return stream;
     }
@@ -336,7 +359,7 @@ namespace std {
         size_t operator ()(const tuple<Args...> &t) const {
             size_t retval = 0;
 
-            tuple_utils::for_each<tuple_utils::hash_for_element, size_t, Args...>(retval, t);
+            internal::tuple_utils::for_each<internal::tuple_utils::hash_for_element, size_t, Args...>(retval, t);
 
             return retval;
         }
