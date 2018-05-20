@@ -21,17 +21,17 @@ struct CostWithPreviousVertex {
     }
 };
 
-template <class Graph>
-std::vector<CostWithPreviousVertex<typename Graph::EdgeLabel>> dijkstra(const Graph &g, size_t start) {
-    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+template <typename EdgeLabel, typename Container>
+std::vector<CostWithPreviousVertex<EdgeLabel>> dijkstra(const Graph<EdgeLabel, Container> &g, size_t start) {
+    using C = CostWithPreviousVertex<EdgeLabel>;
     using optional = std::experimental::optional<size_t>;
     using std::experimental::make_optional;
     using std::vector;
     using std::priority_queue;
-    using pair = std::pair<size_t, typename Graph::EdgeLabel>;
+    using pair = std::pair<size_t, EdgeLabel>;
     using std::make_pair;
 
-    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
+    auto max = std::numeric_limits<EdgeLabel>::max();
     auto N = g.vertices_size();
     auto distance = vector<C>(N, C(max, optional()));
     auto is_used = vector<bool>(N, false);
@@ -65,15 +65,15 @@ std::vector<CostWithPreviousVertex<typename Graph::EdgeLabel>> dijkstra(const Gr
     return distance;
 }
 
-template <class Graph>
-std::vector<std::experimental::optional<CostWithPreviousVertex<typename Graph::EdgeLabel>>> bellman_ford(const Graph &g, size_t start) {
+template <typename EdgeLabel, typename Container>
+std::vector<std::experimental::optional<CostWithPreviousVertex<EdgeLabel>>> bellman_ford(const Graph<EdgeLabel, Container> &g, size_t start) {
     using std::experimental::optional;
     using std::experimental::make_optional;
 
-    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
+    auto max = std::numeric_limits<EdgeLabel>::max();
     auto N = g.vertices_size();
 
-    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+    using C = CostWithPreviousVertex<EdgeLabel>;
     auto vertices = std::vector<optional<C>>(N, make_optional(C(max, optional<size_t>())));
     vertices[start] = make_optional(C(0, optional<size_t>()));
 
@@ -103,15 +103,15 @@ std::vector<std::experimental::optional<CostWithPreviousVertex<typename Graph::E
     return vertices;
 }
 
-template <class Graph>
-std::vector<std::vector<CostWithPreviousVertex<typename Graph::EdgeLabel>>> warshall_floyd(const Graph &g) {
+template <typename EdgeLabel, typename Container>
+std::vector<std::vector<CostWithPreviousVertex<EdgeLabel>>> warshall_floyd(const Graph<EdgeLabel, Container> &g) {
     using std::vector;
     using std::experimental::optional;
     using std::experimental::make_optional;
-    using C = CostWithPreviousVertex<typename Graph::EdgeLabel>;
+    using C = CostWithPreviousVertex<EdgeLabel>;
 
-    auto max = std::numeric_limits<typename Graph::EdgeLabel>::max();
-    CostWithPreviousVertex<typename Graph::EdgeLabel>(0, make_optional(0));
+    auto max = std::numeric_limits<EdgeLabel>::max();
+    CostWithPreviousVertex<EdgeLabel>(0, make_optional(0));
 
     auto N = g.vertices_size();
     vector<vector<C>> distance(N, vector<C>(N, C(max, optional<size_t>())));

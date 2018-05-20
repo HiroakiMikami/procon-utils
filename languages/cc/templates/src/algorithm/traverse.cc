@@ -7,11 +7,11 @@
 #include "graph.cc"
 #endif
 
-template <class Graph, class F1, class F2, class Container, class Push, class Pop>
-void traverse(const Graph &g, const std::vector<size_t> &start,
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2, class Container, class Push, class Pop>
+void traverse(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
               Container &container, const Push &push, const Pop &pop,
               const F1 &process,
-              const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
+              const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
     for (const auto &n: start) {
         for (auto edge: g.outgoings(n)) {
             if (is_added(edge)) push(container, edge);
@@ -31,10 +31,11 @@ void traverse(const Graph &g, const std::vector<size_t> &start,
     }
 }
 
-template <class Graph, class F1, class F2>
-void dfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-                                 const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
-    using _Edge = Edge<typename Graph::EdgeLabel>;
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void dfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
+                                 const F1 &process,
+                                 const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
+    using _Edge = Edge<EdgeLabel>;
     std::stack<_Edge> s;
 
     traverse(g, start, s,
@@ -46,9 +47,9 @@ void dfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &star
              },
              process, is_added);
 }
-template <class Graph, class F1, class F2>
-void dfs(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-         const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
+         const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
     std::vector<bool> is_visited(g.vertices_size(), false);
     dfs_with_duplicate_vertices(g, start, process,
                                 [&is_added, &is_visited](const auto &edge) {
@@ -60,15 +61,16 @@ void dfs(const Graph &g, const std::vector<size_t> &start, const F1 &process,
                                     return retval;
                                 });
 }
-template <class Graph, class F1>
-void dfs(const Graph &g, const std::vector<size_t> &start, const F1 &process) {
+template <typename EdgeLabel, typename InnerContainer, class F1>
+void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
     dfs(g, start, process, [](const auto &edge) { return true; });
 }
 
-template <class Graph, class F1, class F2>
-void bfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-                                 const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
-    using _Edge = Edge<typename Graph::EdgeLabel>;
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void bfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
+                                 const F1 &process,
+                                 const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
+    using _Edge = Edge<EdgeLabel>;
     std::queue<_Edge> s;
 
     traverse(g, start, s,
@@ -80,9 +82,9 @@ void bfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &star
              },
              process, is_added);
 }
-template <class Graph, class F1, class F2>
-void bfs(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-         const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
+         const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
     std::vector<bool> is_visited(g.vertices_size(), false);
     bfs_with_duplicate_vertices(g, start, process,
                                 [&is_added, &is_visited](const auto &edge) {
@@ -94,15 +96,16 @@ void bfs(const Graph &g, const std::vector<size_t> &start, const F1 &process,
                                     return retval;
                                 });
 }
-template <class Graph, class F1>
-void bfs(const Graph &g, const std::vector<size_t> &start, const F1 &process) {
+template <typename EdgeLabel, typename InnerContainer, class F1>
+void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
     bfs(g, start, process, [](const auto &edge) { return true; });
 }
 
-template <class Graph, class F1, class F2>
-void zero_one_bfs_with_duplicate_vertices(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-                                 const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
-    using _Edge = Edge<typename Graph::EdgeLabel>;
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void zero_one_bfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
+                                          const F1 &process,
+                                 const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
+    using _Edge = Edge<EdgeLabel>;
     std::deque<_Edge> s;
 
     traverse(g, start, s,
@@ -120,9 +123,9 @@ void zero_one_bfs_with_duplicate_vertices(const Graph &g, const std::vector<size
              },
              process, is_added);
 }
-template <class Graph, class F1, class F2>
-void zero_one_bfs(const Graph &g, const std::vector<size_t> &start, const F1 &process,
-         const F2 &is_added = [](const Edge<typename Graph::EdgeLabel> &e) { return true; }) {
+template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
+void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
+         const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
     std::vector<bool> is_visited(g.vertices_size(), false);
     zero_one_bfs_with_duplicate_vertices(g, start, process,
                                 [&is_added, &is_visited](const auto &edge) {
@@ -134,7 +137,7 @@ void zero_one_bfs(const Graph &g, const std::vector<size_t> &start, const F1 &pr
                                     return retval;
                                 });
 }
-template <class Graph, class F1>
-void zero_one_bfs(const Graph &g, const std::vector<size_t> &start, const F1 &process) {
+template <typename EdgeLabel, typename InnerContainer, class F1>
+void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
     zero_one_bfs(g, start, process, [](const auto &edge) { return true; });
 }

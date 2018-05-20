@@ -5,9 +5,9 @@
 #include "traverse.cc"
 #endif
 
-template <class Graph>
-std::experimental::optional<std::vector<Edge<typename Graph::EdgeLabel>>> cycle(const Graph &g, size_t start) {
-    using _Edge = Edge<typename Graph::EdgeLabel>;
+template <typename EdgeLabel, typename Container>
+std::experimental::optional<std::vector<Edge<EdgeLabel>>> cycle(const Graph<EdgeLabel, Container> &g, size_t start) {
+    using _Edge = Edge<EdgeLabel>;
     std::vector<_Edge> stack;
     std::experimental::optional<std::vector<_Edge>> retval;
 
