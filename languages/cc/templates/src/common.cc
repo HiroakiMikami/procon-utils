@@ -25,6 +25,7 @@ using namespace std; // TODO Remove this
 #define FOR(i, n, m) for (i64 i = (n); i < static_cast<decltype(i)>(m); ++i)
 #define FORR(i, n, m) for (i64 i = (m) - 1; i >= static_cast<decltype(i)>(n); --i)
 #define EACH(x, xs) for (auto &x: (xs))
+#define EACH_V(x, xs) for (auto x: (xs))
 
 // helpers
 #define CTR(x) (x).begin(), (x).end()
@@ -282,15 +283,31 @@ struct FlattenedIterator {
     }
 private:
     void increment() {
-        if (this->it.first == this->end) return ;
+        auto is_end = [this]() {
+            return this->it.first == this->end;
+        };
+        auto is_valid = [this, &is_end]() {
+            if (is_end()) return false;
+            if (this->it.second == this->it.first->end()) return false;
+            return true;
+        };
 
-        ++this->it.second;
-        if (this->it.second == this->it.first->end()) {
-            ++this->it.first;
-            if (this->it.first != this->end) {
-                this->it.second = this->it.first->begin();
+        auto increment = [this]() {
+            if (this->it.second == this->it.first->end()) {
+                ++this->it.first;
+                if (this->it.first != this->end) {
+                    this->it.second = this->it.first->begin();
+                }
+            } else {
+                ++this->it.second;
             }
+        };
+
+        increment();
+        while (!is_end() && !is_valid()) {
+            increment();
         }
+
     }
     pair<Iterator, ElementIterator> it;
     Iterator end;

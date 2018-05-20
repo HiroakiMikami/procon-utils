@@ -29,6 +29,18 @@ TEST(IteratorUtilsTest, FlattenedIteratorTest) {
         cnt += 1;
     }
     EXPECT_EQ(6, cnt);
+
+    auto s2 = Vector<Vector<i64>>({{0}, {}, {1}});
+    cnt = 0;
+    for (auto x: iterator_flatten(s2)) {
+        if (cnt == 0) {
+            EXPECT_EQ(0, *x.second);
+        } else {
+            EXPECT_EQ(1, *x.second);
+        }
+        cnt += 1;
+    }
+    EXPECT_EQ(2, cnt);
 }
 TEST(IteratorUtilsTest, CombineMultipleIteratorHelperTest) {
     auto s = Matrix<int, 2>{{1}, {2}, {3}, {4}, {5}, {6}};
