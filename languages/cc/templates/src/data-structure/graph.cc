@@ -10,298 +10,129 @@
 template <class EdgeLabel>
 using Edge = typename std::conditional<std::is_void<EdgeLabel>::value, tuple<size_t, size_t>, tuple<size_t, size_t, EdgeLabel>>::type;
 
-template <
-        class _EdgeLabel,
-        class EntryList = vector<typename conditional<is_void<_EdgeLabel>::value, tuple<size_t>, tuple<size_t, _EdgeLabel>>::type>,
-        class List = vector<EntryList>>
-struct AdjacencyList {
-    using EdgeLabel = _EdgeLabel;
-
-    struct EdgeIteratorFunctions {
-        EdgeIteratorFunctions(size_t to): to(to) {}
-        EdgeIteratorFunctions(): to() {}
-        using State = std::tuple<size_t, size_t, const AdjacencyList *>;
-        bool is_begin(const State &state) const {
-            return get<0>(state) == 0 && get<1>(state) == 0;
-        }
-        bool is_end(const State &state) const {
-            return get<0>(state) == get<2>(state)->m_list.size();
-        }
-        bool is_valid(const State &state) const {
-            auto i = get<0>(state);
-            auto j = get<1>(state);
-
-            if (get<2>(state)->m_list.size() == i) {
-                return true;
-            }
-            if (get<2>(state)->m_list[i].size() == j) {
-                return false;
-            }
-
-            if (this->to) {
-                return get<0>(get<2>(state)->m_list[i][j]) == this->to.value();
-            } else {
-                return true;
-            }
-        }
-        Edge<EdgeLabel> get_value(const State &state) const {
-            return to_edge(get<0>(state), get<2>(state)->m_list[get<0>(state)][get<1>(state)]);
-        }
-
-        Edge<EdgeLabel> get_value(State &state) {
-            return to_edge(get<0>(state), get<2>(state)->m_list[get<0>(state)][get<1>(state)]);
-        }
-
-        void next(State &state) const {
-            if ((get<2>(state)->m_list[get<0>(state)].size() == 0) ||
-                (get<1>(state) + 1) == get<2>(state)->m_list[get<0>(state)].size()) {
-                get<0>(state) += 1;
-                get<1>(state) = 0;
-            } else {
-                get<1>(state) += 1;
-            }
-        }
-        void previous(State &state) const {
-            if (get<1>(state) == 0) {
-                get<0>(state) -= 1;
-                get<1>(state) = get<2>(state)->m_list[get<0>(state)].size() - 1;
-            } else {
-                get<1>(state) -= 1;
-            }
-        }
-    private:
-        std::experimental::optional<size_t> to;
+namespace graph_internal {
+    template <typename Container, typename EdgeLabel>
+    struct create {
+        Container operator()(size_t vertex_num) const;
     };
-    using EdgeIterator = BaseIterator<EdgeIteratorFunctions>;
 
-    AdjacencyList() {}
-    AdjacencyList(size_t vertex_num) : m_list(vertex_num) {}
+    /* AdjacencyList */
+    template <typename EdgeLabel>
+    using AdjacencyListEntry = typename conditional<is_void<EdgeLabel>::value, tuple<size_t>, tuple<size_t, EdgeLabel>>::type;
 
-    size_t vertices_size() const {
-        return this->m_list.size();
+    template <typename EdgeLabel>
+    using AdjacencyList = Vector<Vector<AdjacencyListEntry<EdgeLabel>>>;
+
+    template <typename EdgeLabel>
+    struct create<AdjacencyList<EdgeLabel>, EdgeLabel> {
+        AdjacencyList<EdgeLabel> operator()(size_t vertex_num) const {
+            return AdjacencyList<EdgeLabel>(vertex_num);
+        }
+    };
+
+    template <class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
+    static AdjacencyListEntry<EdgeLabel> to_adjacency_list_entry(const Edge<EdgeLabel> &edge) {
+        return std::make_tuple(get<1>(edge));
     }
-
-    Container<EdgeIterator> edges() const {
-        auto begin = EdgeIterator(std::make_tuple(0, static_cast<size_t>(0), this));
-        auto end = EdgeIterator(std::make_tuple(this->m_list.size(), static_cast<size_t>(0), this));
-        return Container<EdgeIterator>(begin, end);
-    }
-    Container<EdgeIterator> edges(size_t n1, size_t n2) const {
-        auto begin = EdgeIterator(std::make_tuple(n1, static_cast<size_t>(0), this), EdgeIteratorFunctions(n2));
-        auto end = EdgeIterator(std::make_tuple(n1 + 1, static_cast<size_t>(0), this), EdgeIteratorFunctions(n2));
-        return Container<EdgeIterator>(begin, end);
-    }
-
-    Container<EdgeIterator> outgoings(size_t n) const {
-        auto begin = EdgeIterator(std::make_tuple(n, static_cast<size_t>(0), this));
-        auto end = EdgeIterator(std::make_tuple(n + 1, static_cast<size_t>(0), this));
-        return Container<EdgeIterator>(begin, end);
+    template <class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
+    static AdjacencyListEntry<EdgeLabel> to_adjacency_list_entry(const Edge<EdgeLabel> &edge) {
+        return std::make_tuple(get<1>(edge), get<2>(edge));
     }
 
-    auto has_edge(size_t n1, size_t n2) const {
-        return find_if(
-                this->m_list[n1].begin(), this->m_list[n1].end(),
-                [n2](const auto &edge) { return get<0>(edge) == n2; }
-        ) != this->m_list[n1].end();
+    template <typename EdgeLabel>
+    static Edge<EdgeLabel> to_edge(size_t from, const AdjacencyListEntry<EdgeLabel> &edge) {
+        return std::tuple_cat(std::make_tuple(from), edge);
     }
 
-    void add_edge(const Edge<EdgeLabel>& edge) {
-        this->m_list[get<0>(edge)].push_back(to_entry<EdgeLabel>(edge));
+    template <typename EdgeLabel>
+    size_t vertex_size(const AdjacencyList<EdgeLabel> &graph) {
+        return graph.size();
     }
-    void remove_edge(const Edge<EdgeLabel>& edge) {
-        this->m_list[get<0>(edge)].erase(
-                remove(this->m_list[get<0>(edge)].begin(), this->m_list[get<0>(edge)].end(), to_entry<EdgeLabel>(edge)),
-                this->m_list[get<0>(edge)].end()
-        );
+
+    template <typename EdgeLabel>
+    auto edges(const AdjacencyList<EdgeLabel> &graph) {
+        return iterator_map(
+                iterator_flatten(graph),
+                [&graph](const auto &it) -> Edge<EdgeLabel> {
+                    auto v = std::distance(graph.begin(), it->first);
+                    return to_edge<EdgeLabel>(v, *it->second);
+                });
     }
-    void remove_edge(size_t n1, size_t n2) {
-        this->m_list[n1].erase(
-                remove_if(
-                        this->m_list[n1].begin(), this->m_list[n1].end(),
-                        [n2](const auto &edge) { return get<0>(edge) == n2; }
-                ),
-                this->m_list[n1].end()
-        );
+    template <typename EdgeLabel>
+    auto edges(const AdjacencyList<EdgeLabel> &graph, size_t v1, size_t v2) {
+        return iterator_map(iterator_filter(graph[v1],
+                                             [&graph, v2](const auto &it) { return get<0>(*it) == v2; }),
+                            [&graph, v1](const auto &it) -> Edge<EdgeLabel> { return to_edge<EdgeLabel>(v1, *it); });
     }
-    size_t add_vertex() {
-        this->m_list.push_back({});
-        return this->m_list.size() - 1;
+
+    template <typename EdgeLabel>
+    auto outgoings(const AdjacencyList<EdgeLabel> &graph, size_t v) {
+        return iterator_map(graph[v],
+                            [&graph, v](const auto &it) { return to_edge<EdgeLabel>(v, *it); });
     }
-    void remove_vertex(size_t n) {
-        REP (i, this->m_list.size()) {
-            if (static_cast<size_t>(i) == n) {
-                this->m_list[i].clear();
+
+    template <typename EdgeLabel>
+    bool has_edge(const AdjacencyList<EdgeLabel> &graph, size_t v1, size_t v2) {
+        return std::find_if(CTR(graph[v1]), [v2](const auto &elem) { return get<0>(elem) == v2; }) != graph[v1].end();
+    }
+
+    template <typename EdgeLabel>
+    size_t add_vertex(AdjacencyList<EdgeLabel> &graph) {
+        graph.push_back({});
+        return graph.size() - 1;
+    }
+    template <typename EdgeLabel>
+    void remove_vertex(AdjacencyList<EdgeLabel> &graph, size_t v) {
+        REP (i, graph.size()) {
+            if (static_cast<size_t>(i) == v) {
+                graph[i].clear();
             } else {
-                auto &edges = this->m_list[i];
+                auto &edges = graph[i];
                 edges.erase(
-                        remove_if(edges.begin(), edges.end(), [n](const auto &edge) { return get<0>(edge) == n; }),
+                        remove_if(edges.begin(), edges.end(), [v](const auto &edge) { return get<0>(edge) == v; }),
                         edges.end()
                 );
             }
         }
     }
 
-    void to_undirected() {
-        std::vector<Edge<EdgeLabel>> es;
-        for (auto edge: this->edges()) {
-            std::swap(get<0>(edge), get<1>(edge));
-            es.push_back(edge);
-        }
-
-        EACH (edge, es) {
-            this->add_edge(edge);
-        }
+    template <typename EdgeLabel>
+    void add_edge(AdjacencyList<EdgeLabel> &graph, const Edge<EdgeLabel>& edge) {
+        graph[get<0>(edge)].push_back(to_adjacency_list_entry<EdgeLabel>(edge));
     }
-private:
-    List m_list;
-
-    using EdgeEntry = typename conditional<is_void<EdgeLabel>::value, tuple<size_t>, tuple<size_t, EdgeLabel>>::type;
-
-    template <class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static EdgeEntry to_entry(const Edge<EdgeLabel> &edge) {
-        return std::make_tuple(get<1>(edge));
+    template <typename EdgeLabel>
+    void remove_edge(AdjacencyList<EdgeLabel> &graph, const Edge<EdgeLabel>& edge) {
+        graph[get<0>(edge)].erase(
+                remove(graph[get<0>(edge)].begin(), graph[get<0>(edge)].end(), to_adjacency_list_entry<EdgeLabel>(edge)),
+                graph[get<0>(edge)].end()
+        );
     }
-    template <class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static EdgeEntry to_entry(const Edge<EdgeLabel> &edge) {
-        return std::make_tuple(get<1>(edge), get<2>(edge));
+    template <typename EdgeLabel>
+    void remove_edge(AdjacencyList<EdgeLabel> &graph, size_t n1, size_t n2) {
+        graph[n1].erase(
+                remove_if(
+                        graph[n1].begin(), graph[n1].end(),
+                        [n2](const auto &edge) { return get<0>(edge) == n2; }
+                ),
+                graph[n1].end()
+        );
     }
 
-    static Edge<EdgeLabel> to_edge(size_t from, const EdgeEntry &edge) {
-        return std::tuple_cat(std::make_tuple(from), edge);
-    }
-};
+    /* AdjacencyMatrix */
+    template <typename EdgeLabel>
+    using AdjacencyMatrixElement = typename std::conditional<
+            std::is_void<EdgeLabel>::value, bool,
+            std::experimental::optional<EdgeLabel>>::type;
 
-using SimpleAdjacencyList = AdjacencyList<void>;
-using WeightedAdjacencyList = AdjacencyList<i64>;
-using UnsignedWeightedAdjacencyList = AdjacencyList<u64>;
-
-template <
-        class _EdgeLabel,
-        class Element = typename std::conditional<
-                std::is_void<_EdgeLabel>::value, bool,
-                std::experimental::optional<_EdgeLabel>>::type,
-        class Row = std::vector<Element>,
-        class Matrix = std::vector<Row>>
-struct AdjacencyMatrix {
-    using EdgeLabel = _EdgeLabel;
-
-    struct EdgeIteratorFunctions {
-        EdgeIteratorFunctions() {}
-        using State = std::tuple<size_t, size_t, const AdjacencyMatrix *>;
-        bool is_begin(const State &state) const {
-            return get<0>(state) == 0 && get<1>(state) == 0;
-        }
-        bool is_end(const State &state) const {
-            return get<0>(state) == get<2>(state)->m_matrix.size();
-        }
-        bool is_valid(const State &state) const {
-            return static_cast<bool>(get<2>(state)->m_matrix[get<0>(state)][get<1>(state)]);
-        }
-        Edge<EdgeLabel> get_value(const State &state) const {
-            return to_edge<EdgeLabel>(get<0>(state), get<1>(state), get<2>(state)->m_matrix[get<0>(state)][get<1>(state)]);
-        }
-
-        Edge<EdgeLabel> get_value(State &state) {
-            return to_edge<EdgeLabel>(get<0>(state), get<1>(state), get<2>(state)->m_matrix[get<0>(state)][get<1>(state)]);
-        }
-
-        void next(State &state) const {
-            if ((get<2>(state)->m_matrix[get<0>(state)].size() == 0) ||
-                (get<1>(state) + 1) == get<2>(state)->m_matrix[get<0>(state)].size()) {
-                get<0>(state) += 1;
-                get<1>(state) = 0;
-            } else {
-                get<1>(state) += 1;
-            }
-        }
-        void previous(State &state) const {
-            if (get<1>(state) == 0) {
-                get<0>(state) -= 1;
-                get<1>(state) = get<2>(state)->m_matrix[get<0>(state)].size() - 1;
-            } else {
-                get<1>(state) -= 1;
-            }
+    template <typename EdgeLabel>
+    using AdjacencyMatrix= Matrix<AdjacencyMatrixElement<EdgeLabel>, 2>;
+    template <typename EdgeLabel>
+    struct create<AdjacencyMatrix<EdgeLabel>, EdgeLabel> {
+        AdjacencyMatrix<EdgeLabel> operator()(size_t vertex_num) const {
+            return make_matrix<AdjacencyMatrixElement<EdgeLabel>, 2>({vertex_num, vertex_num});
         }
     };
-    using EdgeIterator = BaseIterator<EdgeIteratorFunctions>;
 
-    AdjacencyMatrix() {}
-
-    AdjacencyMatrix(size_t vertex_num) : m_matrix(vertex_num, Row(vertex_num)) {}
-
-    size_t vertices_size() const {
-        return this->m_matrix.size();
-    }
-
-    Container<EdgeIterator> edges() const {
-        auto begin = EdgeIterator(std::make_tuple(0, static_cast<size_t>(0), this));
-        auto end = EdgeIterator(std::make_tuple(this->m_matrix.size(), static_cast<size_t>(0), this));
-        return Container<EdgeIterator>(begin, end);
-    }
-    Container<EdgeIterator> edges(size_t n1, size_t n2) const {
-        auto begin = EdgeIterator(std::make_tuple(n1, n2, this));
-        auto end = EdgeIterator(std::make_tuple(n1, n2 + 1, this));
-        return Container<EdgeIterator>(begin, end);
-    }
-
-    Container<EdgeIterator> outgoings(size_t n) const {
-        auto begin = EdgeIterator(std::make_tuple(n, static_cast<size_t>(0), this));
-        auto end = EdgeIterator(std::make_tuple(n + 1, static_cast<size_t>(0), this));
-        return Container<EdgeIterator>(begin, end);
-    }
-
-    auto has_edge(size_t n1, size_t n2) const {
-        return static_cast<bool>(this->m_matrix[n1][n2]);
-    }
-
-    void add_edge(const Edge<EdgeLabel> &edge) {
-        assert(!this->m_matrix[get<0>(edge)][get<1>(edge)]);
-        this->m_matrix[get<0>(edge)][get<1>(edge)] = to_element<EdgeLabel>(edge);
-    }
-
-    void remove_edge(const Edge<EdgeLabel> &edge) {
-        auto elem = to_element<EdgeLabel>(edge);
-        if (this->m_matrix[get<0>(edge)][get<1>(edge)] == elem) {
-            this->m_matrix[get<0>(edge)][get<1>(edge)] = Element();
-        }
-    }
-
-    void remove_edge(size_t n1, size_t n2) {
-        this->m_matrix[n1][n2] = Element();
-    }
-
-    size_t add_vertex() {
-        auto n = this->m_matrix.size();
-        REP (i, this->m_matrix.size()) {
-            this->m_matrix[i].resize(n + 1);
-        }
-        this->m_matrix.push(Row(n + 1));
-        return n;
-    }
-
-    void remove_vertex(size_t n) {
-        REP (i, this->m_matrix.size()) {
-            REP (j, this->m_matrix.size()) {
-                if (static_cast<size_t>(i) == n || static_cast<size_t>(j) == n) {
-                    this->m_matrix[i][j] = Element();
-                }
-            }
-        }
-    }
-
-    void to_undirected() {
-        std::vector<Edge<EdgeLabel>> es;
-        for (auto edge: this->edges()) {
-            std::swap(get<0>(edge), get<1>(edge));
-            es.push_back(edge);
-        }
-
-        EACH (edge, es) {
-            this->add_edge(edge);
-        }
-    }
-private:
-    Matrix m_matrix;
     template<class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
     static Edge<EdgeLabel> to_edge(size_t n1, size_t n2, bool element) {
         return std::make_tuple(n1, n2);
@@ -315,15 +146,165 @@ private:
     }
 
     template<class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static bool to_element(const Edge<EdgeLabel> &edge) {
+    static bool to_adjacency_matrix_element(const Edge<EdgeLabel> &edge) {
         return true;
     }
     template<class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static std::experimental::optional<EdgeLabel> to_element(const Edge<EdgeLabel> &edge) {
+    static std::experimental::optional<EdgeLabel> to_adjacency_matrix_element(const Edge<EdgeLabel> &edge) {
         return std::experimental::make_optional(get<2>(edge));
     }
+
+    template <typename EdgeLabel>
+    size_t vertex_size(const AdjacencyMatrix<EdgeLabel> &matrix) {
+        return matrix.size();
+    }
+
+    template <typename EdgeLabel>
+    auto has_edge(const AdjacencyMatrix<EdgeLabel> &matrix, size_t n1, size_t n2) {
+        return static_cast<bool>(matrix[n1][n2]);
+    }
+
+    template <typename EdgeLabel>
+    auto edges(const AdjacencyMatrix<EdgeLabel> &matrix) {
+        return iterator_map(iterator_filter(iterator_flatten(matrix),
+                                            [](const auto &elem) { return static_cast<bool>(*elem->second); }),
+                            [&matrix](const auto &elem) {
+                                auto v = distance(matrix.begin(), elem->first);
+                                auto u = distance(elem->first->begin(), elem->second);
+                                return to_edge<EdgeLabel>(v, u, *elem->second);
+                            });
+    }
+    template <typename EdgeLabel>
+    auto edges(const AdjacencyMatrix<EdgeLabel> &matrix, size_t n1, size_t n2) {
+        if (has_edge<EdgeLabel>(matrix, n1, n2)) {
+            return Vector<Edge<EdgeLabel>>(1, to_edge<EdgeLabel>(n1, n2, matrix[n1][n2]));
+        } else {
+            return Vector<Edge<EdgeLabel>>();
+        }
+    }
+
+    template <typename EdgeLabel>
+    auto outgoings(const AdjacencyMatrix<EdgeLabel> &matrix, size_t n) {
+        return iterator_map(iterator_filter(iterator_map(matrix[n],
+                                                         [&matrix, n](const auto &elem) -> std::experimental::optional<Edge<EdgeLabel>> {
+                                                             if (*elem) {
+                                                                 auto u = distance(matrix[n].begin(), elem);
+                                                                 return std::experimental::make_optional(to_edge<EdgeLabel>(n, u, *elem));
+                                                             } else {
+                                                                 return std::experimental::optional<Edge<EdgeLabel>>();
+                                                             }
+                                                         }),
+                                            [](const auto &elem) { return static_cast<bool>(*elem); }),
+                            [](const auto &elem) { return (*elem).value(); });
+    }
+
+    template <typename EdgeLabel>
+    void add_edge(AdjacencyMatrix<EdgeLabel> &matrix, const Edge<EdgeLabel> &edge) {
+        assert(!matrix[get<0>(edge)][get<1>(edge)]);
+        matrix[get<0>(edge)][get<1>(edge)] = to_adjacency_matrix_element<EdgeLabel>(edge);
+    }
+
+    template <typename EdgeLabel>
+    void remove_edge(AdjacencyMatrix<EdgeLabel> &matrix, const Edge<EdgeLabel> &edge) {
+        auto elem = to_adjacency_matrix_element<EdgeLabel>(edge);
+        if (matrix[get<0>(edge)][get<1>(edge)] == elem) {
+            matrix[get<0>(edge)][get<1>(edge)] = AdjacencyMatrixElement<EdgeLabel>();
+        }
+    }
+
+    template <typename EdgeLabel>
+    void remove_edge(AdjacencyMatrix<EdgeLabel> &matrix, size_t n1, size_t n2) {
+        matrix[n1][n2] = AdjacencyMatrixElement<EdgeLabel>();
+    }
+
+    template <typename EdgeLabel>
+    size_t add_vertex(AdjacencyMatrix<EdgeLabel> &matrix) {
+        auto n = matrix.size();
+        REP (i, matrix.size()) {
+            matrix[i].resize(n + 1);
+        }
+        matrix.emplace(n + 1);
+        return n;
+    }
+
+    template <typename EdgeLabel>
+    void remove_vertex(AdjacencyMatrix<EdgeLabel> &matrix, size_t n) {
+        REP (i, matrix.size()) {
+            REP (j, matrix.size()) {
+                if (static_cast<size_t>(i) == n || static_cast<size_t>(j) == n) {
+                    matrix[i][j] = AdjacencyMatrixElement<EdgeLabel>();
+                }
+            }
+        }
+    }
+}
+
+template <typename _EdgeLabel, typename Container>
+struct Graph {
+    using EdgeLabel = _EdgeLabel;
+
+    Graph() {}
+    Graph(const Container& c) : container(c) {}
+    Graph(size_t vertex_num) : container(graph_internal::create<Container, EdgeLabel>()(vertex_num)) {}
+
+    size_t vertices_size() const {
+        return graph_internal::vertex_size<EdgeLabel>(this->container);
+    }
+
+    auto edges() const {
+        return graph_internal::edges<EdgeLabel>(this->container);
+    }
+    auto edges(size_t n1, size_t n2) const {
+        return graph_internal::edges<EdgeLabel>(this->container, n1, n2);
+    }
+
+    auto outgoings(size_t n) const {
+        return graph_internal::outgoings<EdgeLabel>(this->container, n);
+    }
+
+    auto has_edge(size_t n1, size_t n2) const {
+        return graph_internal::has_edge<EdgeLabel>(this->container, n1, n2);
+    }
+
+    void add_edge(const Edge<EdgeLabel>& edge) {
+        graph_internal::add_edge<EdgeLabel>(this->container, edge);
+    }
+    void remove_edge(const Edge<EdgeLabel>& edge) {
+        graph_internal::remove_edge<EdgeLabel>(this->container, edge);
+    }
+    void remove_edge(size_t n1, size_t n2) {
+        graph_internal::remove_edge<EdgeLabel>(this->container, n1, n2);
+    }
+    size_t add_vertex() {
+        return graph_internal::add_vertex<EdgeLabel>(this->container);
+    }
+    void remove_vertex(size_t n) {
+        graph_internal::remove_vertex<EdgeLabel>(this->container, n);
+    }
+
+    void to_undirected() {
+        std::vector<Edge<EdgeLabel>> es;
+        for (auto edge: this->edges()) {
+            std::swap(get<0>(edge), get<1>(edge));
+            es.push_back(edge);
+        }
+
+        EACH (edge, es) {
+            this->add_edge(edge);
+        }
+    }
+    Container container;
 };
 
+
+template <typename EdgeLabel>
+using AdjacencyList = Graph<EdgeLabel, graph_internal::AdjacencyList<EdgeLabel>>;
+using SimpleAdjacencyList = AdjacencyList<void>;
+using WeightedAdjacencyList = AdjacencyList<i64>;
+using UnsignedWeightedAdjacencyList = AdjacencyList<u64>;
+
+template <typename EdgeLabel>
+using AdjacencyMatrix = Graph<EdgeLabel, graph_internal::AdjacencyMatrix<EdgeLabel>>;
 using SimpleAdjacencyMatrix = AdjacencyMatrix<void>;
 using WeightedAdjacencyMatrix = AdjacencyMatrix<i64>;
 using UnsignedWeightedAdjacencyMatrix = AdjacencyMatrix<u64>;

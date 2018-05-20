@@ -39,7 +39,8 @@ struct AbstractLabeledGraphTest : public ::testing::Test {
 };
 
 typedef ::testing::Types<SimpleAdjacencyList, SimpleAdjacencyMatrix> Graphs;
-typedef ::testing::Types<WeightedAdjacencyList, WeightedAdjacencyMatrix> LabeledGraphs;
+typedef ::testing::Types<WeightedAdjacencyList> LabeledGraphs;
+//typedef ::testing::Types<WeightedAdjacencyList, WeightedAdjacencyMatrix> LabeledGraphs;
 
 #define GRAPH_TEST(name) template <class Graph> struct g_##name : public AbstractGraphTest<Graph> {}; \
                          TYPED_TEST_CASE(g_##name, Graphs)

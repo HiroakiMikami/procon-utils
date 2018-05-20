@@ -12,28 +12,29 @@ TYPED_TEST(g_GraphTest, ConstructorTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     EXPECT_EQ(3, g.vertices_size());
-    auto o1 = g.edges();
-    int cnt = 0;
-    for (auto it: o1) {
-        ++cnt;
+    auto edges = OrderedSet<tuple<size_t, size_t>>();
+    EACH_V(elem, g.edges()) {
+        edges.insert(elem);
     }
-    EXPECT_EQ(3, cnt);
+    EXPECT_EQ(3, edges.size());
+    EXPECT_TRUE(edges.find(make_tuple(0, 1)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(0, 2)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(1, 2)) != edges.end());
+
     EXPECT_TRUE(g.has_edge(0, 1));
     EXPECT_FALSE(g.has_edge(1, 0));
-    auto o2 = g.outgoings(1);
-    EXPECT_EQ(2, get<1>(*o2.begin()));
-    cnt = 0;
-    for (auto it: o2) {
-        ++cnt;
+    auto outgoings = OrderedSet<tuple<size_t, size_t>>();
+    EACH_V(elem, g.outgoings(1)) {
+        outgoings.insert(elem);
     }
-    EXPECT_EQ(1, cnt);
+    EXPECT_EQ(1, outgoings.size());
+    EXPECT_TRUE(outgoings.find(make_tuple(1, 2)) != outgoings.end());
 }
 TYPED_TEST(g_GraphTest, IterateEdgesTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
 
     int cnt = 0;
-    auto o1 = g.edges(0, 1);
-    for (auto edge: o1) {
+    EACH_V(edge, g.edges(0, 1)) {
         EXPECT_EQ(0, get<0>(edge));
         EXPECT_EQ(1, get<1>(edge));
         ++cnt;
@@ -55,9 +56,7 @@ TYPED_TEST(g_GraphTest, RemoveVertexTest) {
     EXPECT_EQ(3, g.vertices_size());
     g.remove_vertex(2);
     int cnt = 0;
-    auto e1 = g.outgoings(2);
-    EXPECT_TRUE(e1.end().is_end());
-    for (auto edge: e1) {
+    EACH_V(edge, g.outgoings(2)) {
         ++cnt;
     }
     EXPECT_EQ(0, cnt);
@@ -67,11 +66,18 @@ TYPED_TEST(g_GraphTest, ToUndirectedTest) {
     g.to_undirected();
 
     int cnt = 0;
-    auto o1 = g.edges();
-    for (auto it: o1) {
-        ++cnt;
+    auto edges = OrderedSet<tuple<size_t, size_t>>();
+    EACH_V (elem, g.edges()) {
+        edges.insert(elem);
     }
-    EXPECT_EQ(6, cnt);
+    EXPECT_EQ(6, edges.size());
+    EXPECT_TRUE(edges.find(make_tuple(0, 1)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(1, 0)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(0, 2)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(2, 0)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(1, 2)) != edges.end());
+    EXPECT_TRUE(edges.find(make_tuple(2, 1)) != edges.end());
+
     EXPECT_TRUE(g.has_edge(1, 0));
 }
 
