@@ -171,7 +171,7 @@ template <typename Iterator, typename F>
 struct MappedIterator {
     MappedIterator(const Iterator &it, const F &function) : it(it), function(function) {}
     auto operator *() const {
-        return this->function(*this->it);
+        return this->function(this->it);
     }
     void operator++() { ++this->it; }
     void operator+=(size_t n) { this->it += n; }
@@ -193,13 +193,16 @@ struct FilteredIterator {
     FilteredIterator(const Iterator &it, const Iterator &end, const P &predicate)
             : it(it), end(end), predicate(predicate) {
         if (this->it != end) {
-            if (!predicate(*this->it)) {
+            if (!predicate(this->it)) {
                 this->increment();
             }
         }
     }
     decltype(auto) operator *() const {
         return *this->it;
+    }
+    auto operator ->() const {
+        return this->it;
     }
     void operator++() {
         this->increment();
@@ -226,7 +229,7 @@ private:
             return ;
         }
         ++this->it;
-        while (this->it != this->end && !this->predicate(*this->it)) {
+        while (this->it != this->end && !this->predicate(this->it)) {
             ++this->it;
         }
     }
@@ -236,13 +239,16 @@ private:
 };
 template <typename Iterator, typename ElementIterator>
 struct FlattenedIterator {
-    FlattenedIterator(const Iterator &it, const Iterator &end) : it(it), end(end), elem_it() {
-        if (this->it != this->end) {
-            this->elem_it = it->begin();
+    FlattenedIterator(const Iterator &it, const Iterator &end) : it(make_pair(it, ElementIterator())), end(end) {
+        if (this->it.first != this->end) {
+            this->it.second = it->begin();
         }
     }
     decltype(auto) operator *() const {
-        return *this->elem_it;
+        return this->it;
+    }
+    const pair<Iterator, ElementIterator> *operator ->() const {
+        return &this->it;
     }
     void operator++() {
         this->increment();
@@ -258,17 +264,17 @@ struct FlattenedIterator {
         return retval;
     }
     bool operator==(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
-        if (this->it != rhs.it) {
+        if (this->it.first != rhs.it.first) {
             return false;
         }
-        if (this->it == this->end || rhs.it == rhs.end) {
+        if (this->it.first == this->end || rhs.it.first == rhs.end) {
             if (this->end == rhs.end) {
                 return true;
             } else {
                 return false;
             }
         } else {
-            return this->elem_it == rhs.elem_it;
+            return this->it.second == rhs.it.second;
         }
     }
     bool operator!=(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
@@ -276,19 +282,18 @@ struct FlattenedIterator {
     }
 private:
     void increment() {
-        if (this->it == this->end) return ;
+        if (this->it.first == this->end) return ;
 
-        ++this->elem_it;
-        if (this->elem_it == this->it->end()) {
-            ++this->it;
-            if (this->it != this->end) {
-                this->elem_it = this->it->begin();
+        ++this->it.second;
+        if (this->it.second == this->it.first->end()) {
+            ++this->it.first;
+            if (this->it.first != this->end) {
+                this->it.second = this->it.first->begin();
             }
         }
     }
-    Iterator it;
+    pair<Iterator, ElementIterator> it;
     Iterator end;
-    ElementIterator elem_it;
 };
 
 template <typename C, typename F>
