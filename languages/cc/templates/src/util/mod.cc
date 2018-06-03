@@ -110,3 +110,12 @@ namespace mod {
         return retval;
     }
 }
+
+namespace debug {
+    template <>
+    struct oneline<mod::Integer> {
+        std::string operator()(const mod::Integer &x) const {
+            return oneline<decltype(x.get())>()(x.get()) + "(mod " + oneline<decltype(mod::MOD)>()(mod::MOD) + ")";
+        }
+    };
+}

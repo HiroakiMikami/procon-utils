@@ -52,3 +52,11 @@ TEST(ModTest, FactTableTest) {
     EXPECT_EQ(6, table[3].value);
     EXPECT_EQ(Integer(6).inverse(), table[3].inverse);
 }
+
+TEST(ModTest, OutputTest) {
+    Integer x(1);
+    testing::internal::CaptureStderr();
+    dump(x);
+    auto output = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(string("1(mod 1000000007)\n"), output);
+}
