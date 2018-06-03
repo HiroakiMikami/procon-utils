@@ -11,6 +11,10 @@ struct UnionFind {
         }
     }
 
+    size_t size() const {
+        return this->m_rank.size();
+    }
+
     void merge(size_t t1, size_t t2) {
         auto p1 = this->parent(t1);
         auto p2 = this->parent(t2);
@@ -47,3 +51,16 @@ private:
     vector<u64> m_rank;
 
 };
+
+namespace debug {
+    template <>
+    struct oneline<UnionFind> {
+        std::string operator()(const UnionFind &t) const {
+            OrderedMap<size_t, OrderedSet<size_t>> xs;
+            REP (i, t.size()) {
+                xs[t.parent(i)].insert(i);
+            }
+            return oneline<decltype(xs)>()(xs);
+        }
+    };
+}
