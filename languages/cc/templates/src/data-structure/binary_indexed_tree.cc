@@ -74,3 +74,16 @@ private:
     vector<T> m_bit;
 };
 template <class T> using BIT = BinaryIndexedTree<T>;
+
+namespace debug {
+    template <typename T>
+    struct oneline<BIT<T>> {
+        std::string operator()(const BIT<T> &t) const {
+            Vector<T> xs;
+            REP (i, t.size()) {
+                xs.push_back(t.at(i));
+            }
+            return oneline<decltype(xs)>()(xs);
+        }
+    };
+}

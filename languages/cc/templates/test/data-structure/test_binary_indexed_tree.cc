@@ -41,3 +41,11 @@ TEST(BinaryIndexedTreeTest, AddTest) {
     EXPECT_EQ(6, b.at(1));
     EXPECT_EQ(2, b.at(2));
 }
+
+TEST(BinaryIndexedTreeTest, OutputTest) {
+    BIT<int> b({1, 3, 2});
+    testing::internal::CaptureStderr();
+    dump(b);
+    auto output = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(string("[1, 3, 2]\n"), output);
+}
