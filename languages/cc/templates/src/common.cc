@@ -390,78 +390,338 @@ Vector<tuple<T1, T2, T3, Args...>> read(const usize length) {
 }
 
 /* debug output */
-template <class F, class S>
-ostream &operator<<(ostream& stream, const pair<F, S> &pair) {
-    stream << "{" << pair.first << ", " << pair.second << "}";
-    return stream;
-}
-template <class ...Args>
-ostream &operator<<(ostream& stream, const tuple<Args...> &tuple) {
-    stream << "{";
-    internal::tuple_utils::print(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
-    stream << "}";
-    return stream;
+namespace debug {
+    template <typename T>
+    struct oneline {
+        std::string operator()(const T &t) const {
+            std::ostringstream oss;
+            oss << t;
+            return oss.str();
+        }
+    };
+    template <typename F, typename S>
+    struct oneline<pair<F, S>> {
+        std::string operator()(const pair<F, S> &p) const {
+            std::ostringstream oss;
+            oss << "{" << oneline<F>()(p.first) << ", " << oneline<S>()(p.second) << "}";
+            return oss.str();
+        }
+    };
+    struct oneline_tuple {
+        template<class V>
+        void operator()(vector<std::string> &strs, const V &v) const {
+            strs.emplace_back(oneline<V>()(v));
+        }
+    };
+    template <typename ...Args>
+    struct oneline<tuple<Args...>> {
+        std::string operator()(const tuple<Args...> &t) const {
+            std::ostringstream oss;
+            std::vector<std::string> strs;
+            internal::tuple_utils::for_each<oneline_tuple, std::vector<std::string>, Args...>(strs, t);
+            oss << "{";
+            REPR (i, strs.size()) {
+                oss << strs[i];
+                if (i != 0) {
+                    oss << ", ";
+                }
+            }
+            oss << "}";
+            return oss.str();
+        }
+    };
+    template <>
+    struct oneline<bool> {
+        std::string operator()(const bool b) const {
+            return b ? "true" : "false";
+        }
+    };
+    template <typename X>
+    struct oneline<std::vector<X>> {
+        std::string operator()(const Vector<X> &vec) const {
+            std::string retval = "[";
+            auto f = oneline<X>();
+            REP (i, vec.size()) {
+                retval += f(vec[i]);
+                if (i != vec.size() - 1) {
+                    retval += ", ";
+                }
+            }
+            retval += "]";
+            return retval;
+        }
+    };
+    template <typename X>
+    struct oneline<OrderedSet<X>> {
+        std::string operator()(const OrderedSet<X> &s) const {
+            std::string retval = "{";
+            auto f = oneline<X>();
+            size_t ctr = 0;
+            EACH (x, s) {
+                retval += f(x);
+                ctr += 1;
+                if (ctr != s.size()) {
+                    retval += ", ";
+                }
+            }
+            retval += "}";
+            return retval;
+        }
+    };
+    template <typename X>
+    struct oneline<HashSet<X>> {
+        std::string operator()(const HashSet<X> &s) const {
+            std::string retval = "{";
+            auto f = oneline<X>();
+            size_t ctr = 0;
+            EACH (x, s) {
+                retval += f(x);
+                ctr += 1;
+                if (ctr != s.size()) {
+                    retval += ", ";
+                }
+            }
+            retval += "}";
+            return retval;
+        }
+    };
+    template <typename K, typename V>
+    struct oneline<OrderedMap<K, V>> {
+        std::string operator()(const OrderedMap<K, V> &s) const {
+            std::string retval = "{";
+            auto f1 = oneline<K>();
+            auto f2 = oneline<V>();
+            size_t ctr = 0;
+            EACH (x, s) {
+                retval += f1(x.first);
+                retval += ": ";
+                retval += f2(x.second);
+                ctr += 1;
+                if (ctr != s.size()) {
+                    retval += ", ";
+                }
+            }
+            retval += "}";
+            return retval;
+        }
+    };
+    template <typename K, typename V>
+    struct oneline<HashMap<K, V>> {
+        std::string operator()(const HashMap<K,V> &s) const {
+            std::string retval = "{";
+            auto f1 = oneline<K>();
+            auto f2 = oneline<V>();
+            size_t ctr = 0;
+            EACH (x, s) {
+                retval += f1(x.first);
+                retval += ": ";
+                retval += f2(x.second);
+                ctr += 1;
+                if (ctr != s.size()) {
+                    retval += ", ";
+                }
+            }
+            retval += "}";
+            return retval;
+        }
+    };
+
+    template <typename V>
+    struct keys { /* no implementation */ };
+    template <typename X>
+    struct keys<std::vector<X>> {
+        Vector<size_t> operator()(const Vector<X> &v) const {
+            Vector<size_t> keys;
+            REP (i, v.size()) {
+                keys.emplace_back(i);
+            }
+            return keys;
+        }
+    };
+    template <typename K, typename V>
+    struct keys<OrderedMap<K, V>> {
+        Vector<K> operator()(const OrderedMap<K, V> &c) const {
+            Vector<K> keys;
+            EACH (elem, c) {
+                keys.emplace_back(elem.first);
+            }
+            return keys;
+        }
+    };
+    template <typename K, typename V>
+    struct keys<HashMap<K, V>> {
+        Vector<K> operator()(const HashMap<K, V> &c) const {
+            Vector<K> keys;
+            EACH (elem, c) {
+                keys.emplace_back(elem.first);
+            }
+            return keys;
+        }
+    };
 }
 
 template <typename T>
 void dump(const T& t) {
-    std::cerr << t << std::endl;
-}
-template <typename F, typename S>
-void dump(const pair<F, S>& p) {
-    std::cerr << p << std::endl;
-}
-template <class ...Args>
-void dump(const tuple<Args...> &tuple) {
-    std::cerr << tuple << std::endl;
+    using namespace debug;
+    std::cerr << oneline<T>()(t) << std::endl;
 }
 template <typename V1, typename V2, typename ...Args>
 void dump(const V1 &v1, const V2 &v2, const Args&... args) {
+    using namespace debug;
     const auto x = std::make_tuple(v1, v2, args...);
-    internal::tuple_utils::print(std::cerr, x, internal::tuple_utils::gen_seq<sizeof...(Args) + 2>());
-    std::cerr << std::endl;
-}
-
-template <typename T>
-void dump_matrix(const Matrix<T, 0> & matrix) {
-    dump(matrix);
-}
-template <typename T>
-void dump_matrix(const Matrix<T, 1> & matrix) {
-    EACH (x, matrix) {
-        std::cerr << x << " ";
+    std::vector<std::string> strs;
+    internal::tuple_utils::for_each<debug::oneline_tuple, std::vector<std::string>, Args...>(strs, x);
+    REPR (i, strs.size()) {
+        std::cerr << strs[i];
+        if (i != 0) {
+            std::cerr << ", ";
+        }
     }
     std::cerr << std::endl;
 }
-template <typename T>
-void dump_matrix(const Matrix<T, 2> & matrix) {
-    EACH (x, matrix) {
-        dump_matrix<T>(x);
+
+template <typename C>
+std::string as_set(const C& ctr) {
+    Vector<std::string> values;
+
+    using namespace debug;
+    EACH (x, ctr) {
+        values.emplace_back(oneline<decltype(x)>()(x));
     }
+    std::string retval = "---\n";
+    REP (i, values.size()) {
+        retval += values[i];
+        retval += "\n";
+    }
+    retval += "---";
+
+    return retval;
 }
 
 template <typename C>
-void dump_set(const C &container) {
-    EACH(c, container) {
-        dump(c);
+std::string as_map(const C& ctr) {
+    using namespace debug;
+
+    auto ks = keys<C>()(ctr);
+    Vector<std::string> keys;
+    Vector<std::string> values;
+
+    EACH (key, ks) {
+        keys.emplace_back(oneline<decltype(key)>()(key));
+        values.emplace_back(oneline<decltype(ctr.at(key))>()(ctr.at(key)));
     }
+    size_t l = 0;
+    EACH (key, keys) {
+        l = std::max(l, key.size());
+    }
+    std::string retval = "---\n";
+    REP (i, values.size()) {
+        retval += keys[i];
+        REP (j, l - keys[i].size()) {
+            retval += " ";
+        }
+        retval += ": ";
+        retval += values[i];
+        retval += "\n";
+    }
+    retval += "---";
+
+    return retval;
 }
+
 template <typename C>
-void dump_seq(const C &container) {
-    int index = 0;
-    EACH(c, container) {
-        dump(index, c);
-        index += 1;
+std::string as_table(const C &ctr) {
+    using namespace debug;
+    auto rkeys = keys<C>()(ctr);
+    auto ckeys = OrderedSet<std::string>();
+
+    auto values = Vector<pair<std::string, OrderedMap<std::string, std::string>>>();
+
+    /* Stringify all data */
+    EACH (rkey, rkeys) {
+        auto rkey_str = oneline<decltype(rkey)>()(rkey);
+        values.emplace_back(rkey_str, OrderedMap<std::string, std::string>());
+
+        auto row = ctr.at(rkey);
+        auto ks = keys<decltype(row)>()(row);
+        EACH (ckey, ks) {
+            auto ckey_str = oneline<decltype(ckey)>()(ckey);
+            ckeys.emplace(ckey_str);
+            values.back().second.emplace(ckey_str, oneline<decltype(row.at(ckey))>()(row.at(ckey)));
+        }
     }
-}
-template <typename C>
-void dump_map(const C &container) {
-    EACH(c, container) {
-        const auto &key = c.first;
-        const auto &value = c.second;
-        std::cerr << key << "\t:" << value << std::endl;
+
+    /* Calculate string length */
+    size_t max_row_key_length = 0;
+    EACH (value, values) {
+        max_row_key_length = std::max(max_row_key_length, value.first.size());
     }
+
+    OrderedMap<std::string, size_t> max_col_length;
+    EACH (ckey, ckeys) {
+        max_col_length.emplace(ckey, ckey.size());
+    }
+
+    EACH (value, values) {
+        EACH (elem, value.second) {
+            auto ckey = elem.first;
+            auto value = elem.second;
+            max_col_length[ckey] = std::max(max_col_length[ckey], value.size());
+        }
+    }
+
+    std::string retval = "---\n";
+    /* Header */
+    REP(i, max_row_key_length) {
+        retval += " ";
+    }
+    retval += "  ";
+    size_t cnt = 0;
+    EACH (ckey, ckeys) {
+        retval += ckey;
+        REP (j, max_col_length[ckey] - ckey.size()) {
+            retval += " ";
+        }
+
+        cnt += 1;
+        if (cnt != ckeys.size()) {
+            retval += ", ";
+        }
+    }
+    retval += "\n------\n";
+
+    /* Values */
+    EACH (value, values) {
+        retval += value.first;
+        REP(i, max_row_key_length - value.first.size()) {
+            retval += " ";
+        }
+        retval += "| ";
+
+        size_t cnt = 0;
+        EACH (ckey, ckeys) {
+            auto v = std::string("");
+            if (value.second.find(ckey) != value.second.end()) {
+                v = value.second.at(ckey);
+            }
+            retval += v;
+            REP (j, max_col_length[ckey] - v.size()) {
+                retval += " ";
+            }
+
+            cnt += 1;
+            if (cnt != ckeys.size()) {
+                retval += ", ";
+            }
+
+        }
+
+        retval += "\n";
+    }
+    retval += "---";
+    return retval;
 }
+
 
 // Hash
 namespace std {
