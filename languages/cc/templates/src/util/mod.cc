@@ -6,6 +6,7 @@
 namespace mod {
     const i64 MOD = 1000000007;
 
+    template <i64 M>
     struct Integer {
         Integer() : value(0) {}
         Integer(i64 value) {
@@ -13,7 +14,7 @@ namespace mod {
         }
 
         Integer inverse() const {
-            return pow(*this, 1000000005);
+            return pow(*this, M - 2); // TODO 原理はよくわからない
         }
 
         Integer operator+(const Integer &rhs) const {
@@ -71,31 +72,33 @@ namespace mod {
         void update_value(i64 new_value) {
             this->value = new_value;
             if (this->value < 0) {
-                this->value += MOD;
+                this->value += M;
             }
-            if (this->value >= MOD) {
-                this->value %= MOD;
+            if (this->value >= M) {
+                this->value %= M;
             }
         }
         i64 value;
     };
 
-    template <class V>
-    static bool operator==(V lhs, const Integer &rhs) {
+    template <class V, i64 M>
+    static bool operator==(V lhs, const Integer<M> &rhs) {
         return rhs ==lhs;
     }
-    template <class V>
-    static bool operator!=(V lhs, const Integer &rhs) {
+    template <class V, i64 M>
+    static bool operator!=(V lhs, const Integer<M> &rhs) {
         return rhs != lhs;
     }
 
+    template <i64 M>
     struct fact {
-        Integer value;
-        Integer inverse;
+        Integer<M> value;
+        Integer<M> inverse;
     };
 
-    static V<fact> fact_table(const size_t n) {
-        V<fact> retval(n + 1);
+    template <i64 M>
+    static V<fact<M>> fact_table(const size_t n) {
+        V<fact<M>> retval(n + 1);
 
         retval[0].value = 1;
         FOR(i, 1, n + 1) {
@@ -109,13 +112,15 @@ namespace mod {
 
         return retval;
     }
+
+    using Int = Integer<mod::MOD>;
 }
 
 namespace debug {
-    template <>
-    struct oneline<mod::Integer> {
-        std::string operator()(const mod::Integer &x) const {
-            return oneline<decltype(x.get())>()(x.get()) + "(mod " + oneline<decltype(mod::MOD)>()(mod::MOD) + ")";
+    template <i64 M>
+    struct oneline<mod::Integer<M>> {
+        std::string operator()(const mod::Integer<M> &x) const {
+            return oneline<decltype(x.get())>()(x.get()) + "(mod " + oneline<decltype(M)>()(M) + ")";
         }
     };
 }
