@@ -18,7 +18,7 @@ namespace graph_internal {
 
     /* AdjacencyList */
     template <typename EdgeLabel>
-    using AdjacencyListEntry = typename conditional<is_void<EdgeLabel>::value, tuple<size_t>, tuple<size_t, EdgeLabel>>::type;
+    using AdjacencyListEntry = typename std::conditional<std::is_void<EdgeLabel>::value, tuple<size_t>, tuple<size_t, EdgeLabel>>::type;
 
     template <typename EdgeLabel>
     using AdjacencyList = Vector<Vector<AdjacencyListEntry<EdgeLabel>>>;

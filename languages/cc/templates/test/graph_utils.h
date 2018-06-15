@@ -10,7 +10,7 @@ struct AbstractGraphTest : public ::testing::Test {
     Graph mkGraph(const Vector<pair<size_t, size_t>> &edges) {
         size_t vertex_num = 0;
         EACH (e, edges) {
-            vertex_num = max(vertex_num, max(e.first + 1, e.second + 1));
+            vertex_num = std::max(vertex_num, std::max(e.first + 1, e.second + 1));
         }
 
         Graph g(vertex_num);
@@ -27,7 +27,7 @@ struct AbstractLabeledGraphTest : public ::testing::Test {
     Graph mkGraph(const Vector<tuple<size_t, size_t, Edge>> &edges) {
         size_t vertex_num = 0;
         EACH (e, edges) {
-            vertex_num = max(vertex_num, max(get<0>(e) + 1, get<1>(e) + 1));
+            vertex_num = std::max(vertex_num, std::max(get<0>(e) + 1, get<1>(e) + 1));
         }
 
         Graph g(vertex_num);

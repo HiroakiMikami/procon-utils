@@ -7,7 +7,7 @@
 
 template <class V>
 struct TagMapping {
-    TagMapping(unordered_map<V, size_t> map1, vector<V> map2) : m_map1(map1), m_map2(map2) {}
+    TagMapping(HashMap<V, size_t> map1, vector<V> map2) : m_map1(map1), m_map2(map2) {}
 
     const V& operator[](const size_t tag) {
         return this->m_map2[tag];
@@ -16,8 +16,8 @@ struct TagMapping {
         return this->m_map1.at(value);
     }
 private:
-    unordered_map<V, size_t> m_map1;
-    vector<V> m_map2;
+    HashMap<V, size_t> m_map1;
+    Vector<V> m_map2;
 };
 
 template <class Iterator>
@@ -26,7 +26,7 @@ auto make_tags(const Iterator& begin, const Iterator &end, size_t size = 0) {
     using V = typename std::remove_cv<V_>::type;
 
     size_t id = 0;
-    unordered_map<V, size_t> x1;
+    HashMap<V, size_t> x1;
     vector<V> x2;
     x2.reserve(size);
     for (auto it = begin; it != end; ++it) {

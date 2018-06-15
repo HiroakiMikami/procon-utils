@@ -101,8 +101,8 @@ static Vector<i64> divisor(i64 n) {
     return res;
 }
 
-static unordered_map<i64, size_t> prime_factor(i64 n) {
-    unordered_map<i64, size_t> res;
+static HashMap<i64, size_t> prime_factor(i64 n) {
+    HashMap<i64, size_t> res;
     for (i64 i = 2; i * i <= n; i++) {
         while (n % i == 0) {
             res[i] += 1;

@@ -15,8 +15,27 @@
 #include <iomanip>
 #include <type_traits>
 #include <functional>
+#include <experimental/optional>
 
-using namespace std; // TODO Remove this
+using std::cout;
+using std::cerr;
+using std::cin;
+using std::endl;
+using std::flush;
+
+using std::experimental::optional;
+using std::experimental::make_optional;
+using std::pair;
+using std::make_pair;
+using std::tuple;
+using std::make_tuple;
+using std::get;
+using std::string;
+
+using std::vector;
+using std::queue;
+using std::priority_queue;
+using std::stack;
 
 /* macros */
 // loops
@@ -44,12 +63,12 @@ namespace internal {
         struct gen_seq<0, Is...> : seq<Is...> {};
 
         template<class Tuple, size_t... Is>
-        void read(istream &stream, Tuple &t, seq<Is...>) {
+        void read(std::istream &stream, Tuple &t, seq<Is...>) {
             static_cast<void>((int[]) {0, (void(stream >> get<Is>(t)), 0)...});
         }
 
         template<class Tuple, size_t... Is>
-        void print(ostream &stream, Tuple const &t, seq<Is...>) {
+        void print(std::ostream &stream, Tuple const &t, seq<Is...>) {
             static_cast<void>((int[]) {0, (void(stream << (Is == 0 ? "" : ", ") << get<Is>(t)), 0)...});
         }
 
@@ -79,18 +98,18 @@ namespace internal {
 
         template<class F, class A, class... Elems>
         void for_each(A &arg, tuple<Elems...> const &t) {
-            ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
+            ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
         }
 
         template<class F, class A, class... Elems>
         void for_each(A &arg, tuple<Elems...> &t) {
-            ForEach<tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
+            ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
         }
 
         struct hash_for_element {
             template<class V>
             void operator()(size_t &size, const V &v) const {
-                size ^= hash<V>()(v);
+                size ^= std::hash<V>()(v);
             }
         };
     }
@@ -140,10 +159,10 @@ template <typename V> using HashSet = std::unordered_set<V>;
 template <typename K, typename V> using OrderedMap = std::map<K, V>;
 template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
 
-/* utils for std::vector */
+/* utils for Vector */
 template <typename V>
-std::vector<V> make_pre_allocated_vector(size_t N) {
-    std::vector<V> retval;
+Vector<V> make_pre_allocated_vector(size_t N) {
+    Vector<V> retval;
     retval.reserve(N);
     return retval;
 }
@@ -337,13 +356,13 @@ auto iterator_flatten(const C &c) {
 
 /* input */
 template <class F, class S>
-istream &operator>>(istream &stream, pair<F, S> &pair) {
+std::istream &operator>>(std::istream &stream, pair<F, S> &pair) {
     stream >> pair.first;
     stream >> pair.second;
     return stream;
 }
 template <class ...Args>
-istream &operator>>(istream &stream, tuple<Args...> &tuple) {
+std::istream &operator>>(std::istream &stream, tuple<Args...> &tuple) {
     internal::tuple_utils::read(stream, tuple, internal::tuple_utils::gen_seq<sizeof...(Args)>());
     return stream;
 }
@@ -408,7 +427,7 @@ namespace debug {
     };
     struct oneline_tuple {
         template<class V>
-        void operator()(vector<std::string> &strs, const V &v) const {
+        void operator()(Vector<std::string> &strs, const V &v) const {
             strs.emplace_back(oneline<V>()(v));
         }
     };
@@ -416,8 +435,8 @@ namespace debug {
     struct oneline<tuple<Args...>> {
         std::string operator()(const tuple<Args...> &t) const {
             std::ostringstream oss;
-            std::vector<std::string> strs;
-            internal::tuple_utils::for_each<oneline_tuple, std::vector<std::string>, Args...>(strs, t);
+            Vector<std::string> strs;
+            internal::tuple_utils::for_each<oneline_tuple, Vector<std::string>, Args...>(strs, t);
             oss << "{";
             REPR (i, strs.size()) {
                 oss << strs[i];
@@ -436,7 +455,7 @@ namespace debug {
         }
     };
     template <typename X>
-    struct oneline<std::vector<X>> {
+    struct oneline<Vector<X>> {
         std::string operator()(const Vector<X> &vec) const {
             std::string retval = "[";
             auto f = oneline<X>();
@@ -568,8 +587,8 @@ template <typename V1, typename V2, typename ...Args>
 void dump(const V1 &v1, const V2 &v2, const Args&... args) {
     using namespace debug;
     const auto x = std::make_tuple(v1, v2, args...);
-    std::vector<std::string> strs;
-    internal::tuple_utils::for_each<debug::oneline_tuple, std::vector<std::string>, Args...>(strs, x);
+    Vector<std::string> strs;
+    internal::tuple_utils::for_each<debug::oneline_tuple, Vector<std::string>, Args...>(strs, x);
     REPR (i, strs.size()) {
         std::cerr << strs[i];
         if (i != 0) {

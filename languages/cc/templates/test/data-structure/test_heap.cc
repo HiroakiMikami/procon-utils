@@ -16,7 +16,7 @@ TEST(HeapTest, ConstructorTest) {
 }
 
 TEST(HeapTest, CompareTest) {
-    Heap<int, greater<int>> h;
+    Heap<int, std::greater<int>> h;
     h.push(0);
     h.push(1);
     h.push(2);
@@ -34,7 +34,7 @@ TEST(HeapTest, PushTest) {
     EXPECT_EQ(2, h.size());
     EXPECT_EQ(20, h.top());
 
-    auto sum = accumulate(h.begin(), h.end(), 0);
+    auto sum = std::accumulate(h.begin(), h.end(), 0);
     EXPECT_EQ(30, sum);
 }
 

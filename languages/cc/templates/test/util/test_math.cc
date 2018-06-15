@@ -60,7 +60,7 @@ TEST(MathTest, DivisorTest) {
     EXPECT_EQ(Vector<i64>({2, 6, 3, 4}), divisor(12));
 }
 TEST(MathTest, PrimeFactorTest) {
-    auto expected = unordered_map<i64, size_t>({{2, 2}, {3, 1}});
+    auto expected = HashMap<i64, size_t>({{2, 2}, {3, 1}});
     EXPECT_EQ(expected, prime_factor(12));
 }
 TEST(MathTest, SieveTest) {

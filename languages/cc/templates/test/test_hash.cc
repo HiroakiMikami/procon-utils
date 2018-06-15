@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 #include "common.cc"
 
+using std::hash;
+
 TEST(HashTest, PairHashTest) {
     auto p1 = make_pair(0, 1);
     auto p2 = make_pair(0, 1);

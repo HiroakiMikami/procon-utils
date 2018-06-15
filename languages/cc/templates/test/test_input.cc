@@ -2,6 +2,8 @@
 #include <sstream>
 #include "common.cc"
 
+using std::stringbuf;
+
 TEST(InputTest, ReadPairTest) {
     stringbuf buf;
     buf.sputn("0 10", 4);
