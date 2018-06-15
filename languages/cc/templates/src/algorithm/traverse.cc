@@ -63,7 +63,7 @@ void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &s
 }
 template <typename EdgeLabel, typename InnerContainer, class F1>
 void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-    dfs(g, start, process, [](const auto &edge) { return true; });
+    dfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
 }
 
 template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
@@ -98,7 +98,7 @@ void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &s
 }
 template <typename EdgeLabel, typename InnerContainer, class F1>
 void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-    bfs(g, start, process, [](const auto &edge) { return true; });
+    bfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
 }
 
 template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
@@ -139,5 +139,5 @@ void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<s
 }
 template <typename EdgeLabel, typename InnerContainer, class F1>
 void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-    zero_one_bfs(g, start, process, [](const auto &edge) { return true; });
+    zero_one_bfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
 }

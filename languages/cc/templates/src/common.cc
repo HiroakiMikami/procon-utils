@@ -136,7 +136,9 @@ namespace internal {
         };
         template <typename V, typename It>
         struct matrix_helper<V, It, 0> {
-            static Matrix<V, 0> create(const It &begin, const It &end, const V &default_value) {
+            static Matrix<V, 0> create(const It &begin __attribute__((unused)),
+                                        const It &end __attribute__((unused)),
+                                        const V &default_value) {
                 return default_value;
             }
         };
@@ -461,7 +463,7 @@ namespace debug {
             auto f = oneline<X>();
             REP (i, vec.size()) {
                 retval += f(vec[i]);
-                if (i != vec.size() - 1) {
+                if (i != static_cast<i64>(vec.size() - 1)) {
                     retval += ", ";
                 }
             }

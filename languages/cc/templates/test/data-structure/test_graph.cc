@@ -65,7 +65,6 @@ TYPED_TEST(g_GraphTest, ToUndirectedTest) {
     auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
     g.to_undirected();
 
-    int cnt = 0;
     auto edges = OrderedSet<tuple<size_t, size_t>>();
     EACH_V (elem, g.edges()) {
         edges.insert(elem);

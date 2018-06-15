@@ -134,7 +134,7 @@ namespace graph_internal {
     };
 
     template<class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static Edge<EdgeLabel> to_edge(size_t n1, size_t n2, bool element) {
+    static Edge<EdgeLabel> to_edge(size_t n1, size_t n2, bool element __attribute__((unused))) {
         return std::make_tuple(n1, n2);
     }
     template<class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
@@ -146,7 +146,7 @@ namespace graph_internal {
     }
 
     template<class EdgeLabel, typename std::enable_if_t<std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static bool to_adjacency_matrix_element(const Edge<EdgeLabel> &edge) {
+    static bool to_adjacency_matrix_element(const Edge<EdgeLabel> &edge __attribute__((unused))) {
         return true;
     }
     template<class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>

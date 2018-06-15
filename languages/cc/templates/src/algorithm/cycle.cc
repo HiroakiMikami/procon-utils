@@ -40,7 +40,7 @@ std::experimental::optional<std::vector<Edge<EdgeLabel>>> cycle(const Graph<Edge
                                     stack.push_back(edge);
                                     return false;
                                 },
-                                [](const auto &edge) { return true; }
+                                [](const auto &edge __attribute__((unused))) { return true; }
     );
 
     return retval;

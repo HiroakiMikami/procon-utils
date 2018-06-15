@@ -15,7 +15,7 @@ TYPED_TEST(g_DfsTest, SimpleTest) {
     dfs_with_duplicate_vertices(this->mkGraph({{0, 1}, {1, 2}, {2, 3}, {1, 3}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return false;
-    }, [](const auto& edge) { return true; });
+    }, [](const auto& edge __attribute__((unused))) { return true; });
 
     EXPECT_EQ(4, nodes.size());
     EXPECT_EQ(1, nodes[0]);
@@ -40,7 +40,7 @@ TYPED_TEST(g_DfsTest, BreakTest) {
     dfs_with_duplicate_vertices(this->mkGraph({{0, 1}, {0, 2}, {1, 2}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return get<1>(x) == 1;
-    }, [](const auto& edge) { return true; });
+    }, [](const auto& edge __attribute__((unused))) { return true; });
 
     EXPECT_EQ(1, nodes.back());
 }
@@ -60,7 +60,7 @@ TYPED_TEST(g_BfsTest, SimpleTest) {
     bfs_with_duplicate_vertices(this->mkGraph({{0, 1}, {1, 2}, {2, 3}, {1, 3}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return false;
-    }, [](const auto& edge) { return true; });
+    }, [](const auto& edge __attribute__((unused))) { return true; });
 
     EXPECT_EQ(4, nodes.size());
     EXPECT_EQ(1, nodes[0]);
@@ -85,7 +85,7 @@ TYPED_TEST(g_BfsTest, BreakTest) {
     bfs_with_duplicate_vertices(this->mkGraph({{0, 1}, {1, 2}, {1, 3}}), {0}, [&](auto x) {
         nodes.push_back(get<1>(x));
         return get<1>(x) == 1;
-    }, [](const auto& edge) { return true; });
+    }, [](const auto& edge __attribute__((unused))) { return true; });
 
     EXPECT_EQ(1, nodes.back());
 }
