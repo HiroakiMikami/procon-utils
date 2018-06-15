@@ -13,7 +13,7 @@ TEST(StringTest, ToTest) {
 }
 
 TEST(StringTest, SplitTest) {
-    EXPECT_EQ(V<string>({"10", "1"}), split("10,1", ","));
+    EXPECT_EQ(Vector<string>({"10", "1"}), split("10,1", ","));
 
-    EXPECT_EQ(V<string>({"10", "1", ""}), split("10,1,", ","));
+    EXPECT_EQ(Vector<string>({"10", "1", ""}), split("10,1,", ","));
 }

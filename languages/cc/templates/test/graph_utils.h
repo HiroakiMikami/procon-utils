@@ -7,7 +7,7 @@
 
 template <class Graph>
 struct AbstractGraphTest : public ::testing::Test {
-    Graph mkGraph(const V<pair<size_t, size_t>> &edges) {
+    Graph mkGraph(const Vector<pair<size_t, size_t>> &edges) {
         size_t vertex_num = 0;
         EACH (e, edges) {
             vertex_num = max(vertex_num, max(e.first + 1, e.second + 1));
@@ -24,7 +24,7 @@ struct AbstractGraphTest : public ::testing::Test {
 template <class Graph>
 struct AbstractLabeledGraphTest : public ::testing::Test {
     template <class Edge>
-    Graph mkGraph(const V<tuple<size_t, size_t, Edge>> &edges) {
+    Graph mkGraph(const Vector<tuple<size_t, size_t, Edge>> &edges) {
         size_t vertex_num = 0;
         EACH (e, edges) {
             vertex_num = max(vertex_num, max(get<0>(e) + 1, get<1>(e) + 1));

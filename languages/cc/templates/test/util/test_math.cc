@@ -57,7 +57,7 @@ TEST(MathTest, IsPrimeTest) {
     EXPECT_FALSE(is_prime(1));
 }
 TEST(MathTest, DivisorTest) {
-    EXPECT_EQ(V<i64>({2, 6, 3, 4}), divisor(12));
+    EXPECT_EQ(Vector<i64>({2, 6, 3, 4}), divisor(12));
 }
 TEST(MathTest, PrimeFactorTest) {
     auto expected = unordered_map<i64, size_t>({{2, 2}, {3, 1}});
@@ -65,12 +65,11 @@ TEST(MathTest, PrimeFactorTest) {
 }
 TEST(MathTest, SieveTest) {
     auto res = sieve(15);
-    EXPECT_EQ(V<i64>({2, 3, 5, 7, 11, 13}), res.first);
+    EXPECT_EQ(Vector<i64>({2, 3, 5, 7, 11, 13}), res.first);
     EXPECT_EQ(
-            V<bool>({false, false, true, true, false, true,
-                     false, true, false, false, false,
-                     true, false, true, false, false
-                    }),
+            Vector<bool>({false, false, true, true, false, true,
+                           false, true, false, false, false,
+                           true, false, true, false, false}),
             res.second
     );
 }

@@ -133,8 +133,7 @@ using i64 = int64_t; using u64 = uint64_t;
 using usize = size_t;
 
 /* Data structure type */
-template <class T> using V = vector<T>; // TODO Replace with Vector
-template <typename T> using Vector = internal::vector_utils::Matrix<T, 1>;
+template <typename T> using Vector = std::vector<T>;
 template <typename T, int N> using Matrix = internal::vector_utils::Matrix<T, N>;
 template <typename V> using OrderedSet = std::set<V>;
 template <typename V> using HashSet = std::unordered_set<V>;

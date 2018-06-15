@@ -82,7 +82,7 @@ TYPED_TEST(g_GraphTest, ToUndirectedTest) {
 }
 
 TYPED_TEST(g_LabeledGraphTest, ConstructorTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
+    auto edges = Vector<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
     edges.push_back({1, 2, 30});
@@ -122,7 +122,7 @@ TYPED_TEST(g_LabeledGraphTest, ConstructorTest) {
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(g_LabeledGraphTest, IterateEdgesTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
+    auto edges = Vector<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
     edges.push_back({1, 2, 30});
@@ -139,7 +139,7 @@ TYPED_TEST(g_LabeledGraphTest, IterateEdgesTest) {
     EXPECT_EQ(1, cnt);
 }
 TYPED_TEST(g_LabeledGraphTest, RemoveEdgeTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
+    auto edges = Vector<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
     edges.push_back({1, 2, 30});
@@ -156,7 +156,7 @@ TYPED_TEST(g_LabeledGraphTest, RemoveEdgeTest) {
     EXPECT_FALSE(g.has_edge(1, 2));
 }
 TYPED_TEST(g_LabeledGraphTest, ToUndirectedTest) {
-    auto edges = V<tuple<size_t, size_t, i64>>();
+    auto edges = Vector<tuple<size_t, size_t, i64>>();
     edges.push_back({0, 1, 10});
     edges.push_back({0, 2, 20});
     edges.push_back({1, 2, 30});

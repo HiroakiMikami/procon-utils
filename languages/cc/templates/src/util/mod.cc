@@ -97,8 +97,8 @@ namespace mod {
     };
 
     template <i64 M>
-    static V<fact<M>> fact_table(const size_t n) {
-        V<fact<M>> retval(n + 1);
+    static Vector<fact<M>> fact_table(const size_t n) {
+        Vector<fact<M>> retval(n + 1);
 
         retval[0].value = 1;
         FOR(i, 1, n + 1) {

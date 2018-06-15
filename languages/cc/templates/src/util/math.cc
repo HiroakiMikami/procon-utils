@@ -38,7 +38,7 @@ static i64 gcd_ctr(const Iterator &begin, const Iterator &end) {
     }
 }
 
-static i64 gcd_ctr(const V<i64> &xs) {
+static i64 gcd_ctr(const Vector<i64> &xs) {
     return gcd_ctr(xs.begin(), xs.end());
 }
 
@@ -63,7 +63,7 @@ static i64 lcm_ctr(const Iterator &begin, const Iterator &end) {
     }
 }
 
-static i64 lcm_ctr(const V<i64> &xs) {
+static i64 lcm_ctr(const Vector<i64> &xs) {
     return lcm_ctr(xs.begin(), xs.end());
 }
 
@@ -90,8 +90,8 @@ static bool is_prime(i64 n) {
     return true;
 }
 
-static V<i64> divisor(i64 n) {
-    V<i64> res;
+static Vector<i64> divisor(i64 n) {
+    Vector<i64> res;
     for (i64 i = 2; i * i <= n; i++) {
         if (n % i == 0) {
             res.push_back(i);
@@ -113,9 +113,9 @@ static unordered_map<i64, size_t> prime_factor(i64 n) {
     return res;
 }
 
-static pair<V<i64>, V<bool>> sieve(i64 n) {
-    V<i64> prime;
-    V<bool> is_prime_(n + 1, true);
+static pair<Vector<i64>, Vector<bool>> sieve(i64 n) {
+    Vector<i64> prime;
+    Vector<bool> is_prime_(n + 1, true);
     is_prime_[0] = is_prime_[1] = false;
 
     FOR (i, 2, n + 1) {

@@ -35,7 +35,7 @@ TEST(InputTest, ReadVectorTest) {
 
     cin.rdbuf(prev);
 
-    EXPECT_EQ(V<int>({0, 10}), vector);
+    EXPECT_EQ(Vector<int>({0, 10}), vector);
 }
 
 TEST(InputTest, ReadPairVectorTest) {
@@ -46,7 +46,7 @@ TEST(InputTest, ReadPairVectorTest) {
 
     cin.rdbuf(prev);
 
-    auto expected = V<pair<int, int>>({make_pair(0, 10)});
+    auto expected = Vector<pair<int, int>>({make_pair(0, 10)});
     EXPECT_EQ(expected, v);
 }
 
@@ -59,7 +59,7 @@ TEST(InputTest, ReadTupleVectorTest) {
 
     cin.rdbuf(prev);
 
-    auto expected = V<tuple<int, int, char>>({make_tuple(0, 10, 'f')});
+    auto expected = Vector<tuple<int, int, char>>({make_tuple(0, 10, 'f')});
     EXPECT_EQ(expected, vector);
 }
 

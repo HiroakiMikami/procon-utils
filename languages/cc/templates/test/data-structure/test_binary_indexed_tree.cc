@@ -12,7 +12,7 @@ TEST(BinaryIndexedTreeTest, ConstructorTest) {
     EXPECT_EQ(1, b.sum(2));
     EXPECT_EQ(3, b.sum(3));
 
-    V<i64> xs = {0, 1, 2};
+    Vector<i64> xs = {0, 1, 2};
     BIT<int> b2(CTR(b));
     EXPECT_EQ(3, b2.size());
     EXPECT_EQ(0, b2.sum(0));

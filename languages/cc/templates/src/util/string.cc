@@ -18,8 +18,8 @@ i32 to(const string &str) {
     return atoi(str.c_str());
 }
 
-V<string> split(const string &str, const string &delimiter) {
-    V<string> ret;
+Vector<string> split(const string &str, const string &delimiter) {
+    Vector<string> ret;
     std::remove_const_t<decltype(string::npos)> pos = 0;
     while (pos != string::npos) {
         auto p = str.find(delimiter, pos);
