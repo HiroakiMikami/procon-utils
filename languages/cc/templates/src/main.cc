@@ -4,9 +4,9 @@ void body();
 // main function (DO NOT EDIT)
 int main (int argc, char **argv) {
     cin.tie(0);
-    ios_base::sync_with_stdio(false);
+    std::ios_base::sync_with_stdio(false);
 
-    cout << fixed;
+    cout << std::fixed;
     body();
 
     return 0;
