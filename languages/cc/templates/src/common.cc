@@ -105,13 +105,6 @@ namespace internal {
         void for_each(A &arg, tuple<Elems...> &t) {
             ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
         }
-
-        struct hash_for_element {
-            template<class V>
-            void operator()(size_t &size, const V &v) const {
-                size ^= std::hash<V>()(v);
-            }
-        };
     }
 
     /* utils for std::vector */
@@ -754,10 +747,17 @@ namespace std {
 
     template <class ...Args>
     struct hash<tuple<Args...>> {
+        struct hash_for_element {
+            template<class V>
+            void operator()(size_t &size, const V &v) const {
+                size ^= std::hash<V>()(v);
+            }
+        };
+
         size_t operator ()(const tuple<Args...> &t) const {
             size_t retval = 0;
 
-            internal::tuple_utils::for_each<internal::tuple_utils::hash_for_element, size_t, Args...>(retval, t);
+            internal::tuple_utils::for_each<hash_for_element, size_t, Args...>(retval, t);
 
             return retval;
         }
