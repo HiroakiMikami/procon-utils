@@ -17,25 +17,39 @@
 #include <functional>
 #include <experimental/optional>
 
+/* import STL */
+// stream
 using std::cout;
 using std::cerr;
 using std::cin;
 using std::endl;
 using std::flush;
 
+// basic types
 using std::experimental::optional;
-using std::experimental::make_optional;
 using std::pair;
-using std::make_pair;
 using std::tuple;
-using std::make_tuple;
-using std::get;
 using std::string;
 
+// function for basic types
+using std::experimental::make_optional;
+using std::make_pair;
+using std::make_tuple;
+using std::get;
+
+/* TODO remove them */
 using std::vector;
 using std::queue;
 using std::priority_queue;
 using std::stack;
+
+// algorithms
+using std::upper_bound;
+using std::lower_bound;
+using std::min_element;
+using std::max_element;
+using std::nth_element;
+using std::accumulate;
 
 /* macros */
 // loops
@@ -52,7 +66,7 @@ using std::stack;
 /* internal code */
 namespace internal {
     /* utils for std::tuple */
-    namespace tuple_utils {
+    namespace tuple_utils { // TODO rename to "tuple"
         template<size_t...>
         struct seq {};
 
