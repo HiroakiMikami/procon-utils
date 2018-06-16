@@ -64,7 +64,7 @@ using std::accumulate;
 #define CTR(x) (x).begin(), (x).end()
 
 /* utils for std::tuple */
-namespace internal::tuple_utils { // TODO rename to "internal::tuple"
+namespace internal { namespace tuple_utils { // TODO rename to "internal::tuple"
     template<size_t...>
     struct seq {};
 
@@ -117,10 +117,10 @@ namespace internal::tuple_utils { // TODO rename to "internal::tuple"
     void for_each(A &arg, tuple<Elems...> &t) {
         ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
     }
-}
+}}
 
 /* utils for Matrix (definition of Matrix) */
-namespace internal::matrix {
+namespace internal { namespace matrix {
     template <typename V, int N>
     struct matrix_t {
         using type = std::vector<typename matrix_t<V, N-1>::type>;
@@ -147,7 +147,7 @@ namespace internal::matrix {
             return default_value;
         }
     };
-}
+}}
 
 /* Primitive types */
 using i8  =  int8_t; using  u8 =  uint8_t;

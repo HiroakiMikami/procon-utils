@@ -13,7 +13,7 @@ using Edge = typename std::conditional<std::is_void<EdgeLabel>::value,
         tuple<size_t, size_t, EdgeLabel>
 >::type;
 
-namespace internal::graph {
+namespace internal { namespace graph {
     template <typename Container, typename EdgeLabel>
     struct create {
         Container operator()(size_t vertex_num) const;
@@ -240,7 +240,7 @@ namespace internal::graph {
             }
         }
     }
-}
+}}
 
 template <typename _EdgeLabel, typename Container>
 struct Graph {
