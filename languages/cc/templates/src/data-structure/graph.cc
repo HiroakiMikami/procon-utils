@@ -8,9 +8,12 @@
 #endif
 
 template <class EdgeLabel>
-using Edge = typename std::conditional<std::is_void<EdgeLabel>::value, tuple<size_t, size_t>, tuple<size_t, size_t, EdgeLabel>>::type;
+using Edge = typename std::conditional<std::is_void<EdgeLabel>::value,
+        tuple<size_t, size_t>,
+        tuple<size_t, size_t, EdgeLabel>
+>::type;
 
-namespace graph_internal {
+namespace internal::graph {
     template <typename Container, typename EdgeLabel>
     struct create {
         Container operator()(size_t vertex_num) const;
@@ -245,41 +248,41 @@ struct Graph {
 
     Graph() {}
     Graph(const Container& c) : container(c) {}
-    Graph(size_t vertex_num) : container(graph_internal::create<Container, EdgeLabel>()(vertex_num)) {}
+    Graph(size_t vertex_num) : container(internal::graph::create<Container, EdgeLabel>()(vertex_num)) {}
 
     size_t vertices_size() const {
-        return graph_internal::vertex_size<EdgeLabel>(this->container);
+        return internal::graph::vertex_size<EdgeLabel>(this->container);
     }
 
     auto edges() const {
-        return graph_internal::edges<EdgeLabel>(this->container);
+        return internal::graph::edges<EdgeLabel>(this->container);
     }
     auto edges(size_t n1, size_t n2) const {
-        return graph_internal::edges<EdgeLabel>(this->container, n1, n2);
+        return internal::graph::edges<EdgeLabel>(this->container, n1, n2);
     }
 
     auto outgoings(size_t n) const {
-        return graph_internal::outgoings<EdgeLabel>(this->container, n);
+        return internal::graph::outgoings<EdgeLabel>(this->container, n);
     }
 
     auto has_edge(size_t n1, size_t n2) const {
-        return graph_internal::has_edge<EdgeLabel>(this->container, n1, n2);
+        return internal::graph::has_edge<EdgeLabel>(this->container, n1, n2);
     }
 
     void add_edge(const Edge<EdgeLabel>& edge) {
-        graph_internal::add_edge<EdgeLabel>(this->container, edge);
+        internal::graph::add_edge<EdgeLabel>(this->container, edge);
     }
     void remove_edge(const Edge<EdgeLabel>& edge) {
-        graph_internal::remove_edge<EdgeLabel>(this->container, edge);
+        internal::graph::remove_edge<EdgeLabel>(this->container, edge);
     }
     void remove_edge(size_t n1, size_t n2) {
-        graph_internal::remove_edge<EdgeLabel>(this->container, n1, n2);
+        internal::graph::remove_edge<EdgeLabel>(this->container, n1, n2);
     }
     size_t add_vertex() {
-        return graph_internal::add_vertex<EdgeLabel>(this->container);
+        return internal::graph::add_vertex<EdgeLabel>(this->container);
     }
     void remove_vertex(size_t n) {
-        graph_internal::remove_vertex<EdgeLabel>(this->container, n);
+        internal::graph::remove_vertex<EdgeLabel>(this->container, n);
     }
 
     void to_undirected() {
@@ -298,13 +301,13 @@ struct Graph {
 
 
 template <typename EdgeLabel>
-using AdjacencyList = Graph<EdgeLabel, graph_internal::AdjacencyList<EdgeLabel>>;
+using AdjacencyList = Graph<EdgeLabel, internal::graph::AdjacencyList<EdgeLabel>>;
 using SimpleAdjacencyList = AdjacencyList<void>;
 using WeightedAdjacencyList = AdjacencyList<i64>;
 using UnsignedWeightedAdjacencyList = AdjacencyList<u64>;
 
 template <typename EdgeLabel>
-using AdjacencyMatrix = Graph<EdgeLabel, graph_internal::AdjacencyMatrix<EdgeLabel>>;
+using AdjacencyMatrix = Graph<EdgeLabel, internal::graph::AdjacencyMatrix<EdgeLabel>>;
 using SimpleAdjacencyMatrix = AdjacencyMatrix<void>;
 using WeightedAdjacencyMatrix = AdjacencyMatrix<i64>;
 using UnsignedWeightedAdjacencyMatrix = AdjacencyMatrix<u64>;

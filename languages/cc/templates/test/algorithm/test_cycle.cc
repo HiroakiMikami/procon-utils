@@ -9,6 +9,8 @@
 
 GRAPH_TEST(CycleTest);
 
+using namespace graph;
+
 TYPED_TEST(g_CycleTest, SimpleTest) {
     /*
      * 0 -> 1 -> 2 -> 3 -> 4

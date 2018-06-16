@@ -10,6 +10,8 @@ GRAPH_TEST(DfsTest);
 GRAPH_TEST(BfsTest);
 LABELED_GRAPH_TEST(01BfsTest);
 
+using namespace graph;
+
 TYPED_TEST(g_DfsTest, SimpleTest) {
     std::vector<size_t> nodes;
     dfs_with_duplicate_vertices(this->mkGraph({{0, 1}, {1, 2}, {2, 3}, {1, 3}}), {0}, [&](auto x) {

@@ -3,97 +3,99 @@
 #include "math.cc"
 #endif
 
-namespace mod {
+namespace mod_integer {
     const i64 MOD = 1000000007;
+}
 
-    template <i64 M>
-    struct Integer {
-        Integer() : value(0) {}
-        Integer(i64 value) {
-            update_value((value));
-        }
-
-        Integer inverse() const {
-            return pow(*this, M - 2); // TODO 原理はよくわからない
-        }
-
-        Integer operator+(const Integer &rhs) const {
-            return this->value + rhs.value;
-        }
-        Integer operator-(const Integer &rhs) const {
-            return this->value - rhs.value;
-        }
-
-        Integer operator*(const Integer &rhs) const {
-            return this->value * rhs.value;
-        }
-
-        Integer operator /(const Integer &rhs) const {
-            return this->value * rhs.inverse().value;
-        }
-
-        void operator +=(const Integer &rhs) {
-            update_value(this->value + rhs.value);
-        }
-
-        void operator -=(const Integer &rhs) {
-            update_value(this->value - rhs.value);
-        }
-
-        void operator *=(const Integer &rhs) {
-            update_value(this->value * rhs.value);
-        }
-
-        void operator /=(const Integer &rhs) {
-            update_value(this->value * rhs.inverse().value);
-        }
-
-        bool operator==(const Integer &rhs) const {
-            return this->value == rhs.value;
-        }
-        template <class V>
-        bool operator==(V rhs) const {
-            return this->value == rhs;
-        }
-
-        bool operator!=(const Integer &rhs) const {
-            return this->value != rhs.value;
-        }
-        template <class V>
-        bool operator!=(V rhs) const {
-            return this->value != rhs;
-        }
-
-        const i64 &get() const {
-            return this->value;
-        }
-
-    private:
-        void update_value(i64 new_value) {
-            this->value = new_value;
-            if (this->value < 0) {
-                this->value += M;
-            }
-            if (this->value >= M) {
-                this->value %= M;
-            }
-        }
-        i64 value;
-    };
-
-    template <class V, i64 M>
-    static bool operator==(V lhs, const Integer<M> &rhs) {
-        return rhs ==lhs;
-    }
-    template <class V, i64 M>
-    static bool operator!=(V lhs, const Integer<M> &rhs) {
-        return rhs != lhs;
+template <i64 M = mod_integer::MOD>
+struct ModInteger {
+    ModInteger() : value(0) {}
+    ModInteger(i64 value) {
+        update_value((value));
     }
 
+    ModInteger inverse() const {
+        return pow(*this, M - 2); // TODO 原理はよくわからない
+    }
+
+    ModInteger operator+(const ModInteger &rhs) const {
+        return this->value + rhs.value;
+    }
+    ModInteger operator-(const ModInteger &rhs) const {
+        return this->value - rhs.value;
+    }
+
+    ModInteger operator*(const ModInteger &rhs) const {
+        return this->value * rhs.value;
+    }
+
+    ModInteger operator /(const ModInteger &rhs) const {
+        return this->value * rhs.inverse().value;
+    }
+
+    void operator +=(const ModInteger &rhs) {
+        update_value(this->value + rhs.value);
+    }
+
+    void operator -=(const ModInteger &rhs) {
+        update_value(this->value - rhs.value);
+    }
+
+    void operator *=(const ModInteger &rhs) {
+        update_value(this->value * rhs.value);
+    }
+
+    void operator /=(const ModInteger &rhs) {
+        update_value(this->value * rhs.inverse().value);
+    }
+
+    bool operator==(const ModInteger &rhs) const {
+        return this->value == rhs.value;
+    }
+    template <class V>
+    bool operator==(V rhs) const {
+        return this->value == rhs;
+    }
+
+    bool operator!=(const ModInteger &rhs) const {
+        return this->value != rhs.value;
+    }
+    template <class V>
+    bool operator!=(V rhs) const {
+        return this->value != rhs;
+    }
+
+    const i64 &get() const {
+        return this->value;
+    }
+
+private:
+    void update_value(i64 new_value) {
+        this->value = new_value;
+        if (this->value < 0) {
+            this->value += M;
+        }
+        if (this->value >= M) {
+            this->value %= M;
+        }
+    }
+    i64 value;
+};
+
+template <class V, i64 M>
+static bool operator==(V lhs, const ModInteger<M> &rhs) {
+    return rhs ==lhs;
+}
+template <class V, i64 M>
+static bool operator!=(V lhs, const ModInteger<M> &rhs) {
+    return rhs != lhs;
+}
+
+namespace mod_integer {
     template <i64 M>
     struct fact {
-        Integer<M> value;
-        Integer<M> inverse;
+        ModInteger<M> value;
+        ModInteger<M> inverse;
     };
 
     template <i64 M>
@@ -112,14 +114,12 @@ namespace mod {
 
         return retval;
     }
-
-    using Int = Integer<mod::MOD>;
 }
 
-namespace debug {
+namespace internal {
     template <i64 M>
-    struct oneline<mod::Integer<M>> {
-        std::string operator()(const mod::Integer<M> &x) const {
+    struct oneline<ModInteger<M>> {
+        std::string operator()(const ModInteger<M> &x) const {
             return oneline<decltype(x.get())>()(x.get()) + "(mod " + oneline<decltype(M)>()(M) + ")";
         }
     };

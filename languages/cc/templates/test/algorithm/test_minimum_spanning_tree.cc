@@ -10,6 +10,8 @@
 LABELED_GRAPH_TEST(PrimTest);
 LABELED_GRAPH_TEST(KruskalTest);
 
+using namespace graph;
+
 TYPED_TEST(g_PrimTest, SimpleTest) {
     using std::make_tuple;
 

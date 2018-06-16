@@ -10,6 +10,8 @@ LABELED_GRAPH_TEST(DijkstraTest);
 LABELED_GRAPH_TEST(BellmanFordTest);
 LABELED_GRAPH_TEST(WarshallFloydTest);
 
+using namespace graph;
+
 TYPED_TEST(g_DijkstraTest, SimpleTest) {
     /*
      * 0 -(5)----------> 1

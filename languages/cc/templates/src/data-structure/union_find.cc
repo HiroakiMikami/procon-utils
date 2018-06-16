@@ -52,7 +52,7 @@ private:
 
 };
 
-namespace debug {
+namespace internal {
     template <>
     struct oneline<UnionFind> {
         std::string operator()(const UnionFind &t) const {

@@ -4,6 +4,8 @@
 #include "common.cc"
 #include "util/string.cc"
 
+using namespace string_utils;
+
 TEST(StringTest, ToTest) {
     auto i = to<i32>("10");
     EXPECT_EQ(10, i);

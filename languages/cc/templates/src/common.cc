@@ -63,95 +63,91 @@ using std::accumulate;
 // helpers
 #define CTR(x) (x).begin(), (x).end()
 
-/* internal code */
-namespace internal {
-    /* utils for std::tuple */
-    namespace tuple_utils { // TODO rename to "tuple"
-        template<size_t...>
-        struct seq {};
+/* utils for std::tuple */
+namespace internal::tuple_utils { // TODO rename to "internal::tuple"
+    template<size_t...>
+    struct seq {};
 
-        template<size_t N, size_t... Is>
-        struct gen_seq : gen_seq<N - 1, N - 1, Is...> {};
+    template<size_t N, size_t... Is>
+    struct gen_seq : gen_seq<N - 1, N - 1, Is...> {};
 
-        template<size_t... Is>
-        struct gen_seq<0, Is...> : seq<Is...> {};
+    template<size_t... Is>
+    struct gen_seq<0, Is...> : seq<Is...> {};
 
-        template<class Tuple, size_t... Is>
-        void read(std::istream &stream, Tuple &t, seq<Is...>) {
-            static_cast<void>((int[]) {0, (void(stream >> get<Is>(t)), 0)...});
-        }
-
-        template<class Tuple, size_t... Is>
-        void print(std::ostream &stream, Tuple const &t, seq<Is...>) {
-            static_cast<void>((int[]) {0, (void(stream << (Is == 0 ? "" : ", ") << get<Is>(t)), 0)...});
-        }
-
-        template<size_t I, class F, class A, class... Elems>
-        struct ForEach {
-            void operator()(A &arg, tuple<Elems...> const &t) const {
-                F()(arg, get<I>(t));
-                ForEach<I - 1, F, A, Elems...>()(arg, t);
-            }
-
-            void operator()(A &arg, tuple<Elems...> &t) const {
-                F()(arg, get<I>(t));
-                ForEach<I - 1, F, A, Elems...>()(arg, t);
-            }
-        };
-
-        template<class F, class A, class... Elems>
-        struct ForEach<0, F, A, Elems...> {
-            void operator()(A &arg, tuple<Elems...> const &t) const {
-                F()(arg, get<0>(t));
-            }
-
-            void operator()(A &arg, tuple<Elems...> &t) const {
-                F()(arg, get<0>(t));
-            }
-        };
-
-        template<class F, class A, class... Elems>
-        void for_each(A &arg, tuple<Elems...> const &t) {
-            ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
-        }
-
-        template<class F, class A, class... Elems>
-        void for_each(A &arg, tuple<Elems...> &t) {
-            ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
-        }
+    template<class Tuple, size_t... Is>
+    void read(std::istream &stream, Tuple &t, seq<Is...>) {
+        static_cast<void>((int[]) {0, (void(stream >> get<Is>(t)), 0)...});
     }
 
-    /* utils for std::vector */
-    namespace vector_utils {
-        template <typename V, int N>
-        struct matrix_t {
-            using type = std::vector<typename matrix_t<V, N-1>::type>;
-        };
-        template <typename V>
-        struct matrix_t<V, 0> {
-            using type = V;
-        };
+    template<class Tuple, size_t... Is>
+    void print(std::ostream &stream, Tuple const &t, seq<Is...>) {
+        static_cast<void>((int[]) {0, (void(stream << (Is == 0 ? "" : ", ") << get<Is>(t)), 0)...});
+    }
 
-        template <typename V, int N>
-        using Matrix = typename internal::vector_utils::matrix_t<V, N>::type;
+    template<size_t I, class F, class A, class... Elems>
+    struct ForEach {
+        void operator()(A &arg, tuple<Elems...> const &t) const {
+            F()(arg, get<I>(t));
+            ForEach<I - 1, F, A, Elems...>()(arg, t);
+        }
 
-        template <typename V, typename It, int N>
-        struct matrix_helper {
-            static Matrix<V, N> create(const It &begin, const It &end, const V &default_value) {
-                return Matrix<V, N>(*begin, matrix_helper<V, It, N - 1>::create(begin + 1, end, default_value));
-            }
-        };
-        template <typename V, typename It>
-        struct matrix_helper<V, It, 0> {
-            static Matrix<V, 0> create(const It &begin __attribute__((unused)),
-                                        const It &end __attribute__((unused)),
-                                        const V &default_value) {
-                return default_value;
-            }
-        };
+        void operator()(A &arg, tuple<Elems...> &t) const {
+            F()(arg, get<I>(t));
+            ForEach<I - 1, F, A, Elems...>()(arg, t);
+        }
+    };
+
+    template<class F, class A, class... Elems>
+    struct ForEach<0, F, A, Elems...> {
+        void operator()(A &arg, tuple<Elems...> const &t) const {
+            F()(arg, get<0>(t));
+        }
+
+        void operator()(A &arg, tuple<Elems...> &t) const {
+            F()(arg, get<0>(t));
+        }
+    };
+
+    template<class F, class A, class... Elems>
+    void for_each(A &arg, tuple<Elems...> const &t) {
+        ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
+    }
+
+    template<class F, class A, class... Elems>
+    void for_each(A &arg, tuple<Elems...> &t) {
+        ForEach<std::tuple_size<tuple<Elems...>>::value - 1, F, A, Elems...>()(arg, t);
     }
 }
 
+/* utils for Matrix (definition of Matrix) */
+namespace internal::matrix {
+    template <typename V, int N>
+    struct matrix_t {
+        using type = std::vector<typename matrix_t<V, N-1>::type>;
+    };
+    template <typename V>
+    struct matrix_t<V, 0> {
+        using type = V;
+    };
+
+    template <typename V, int N>
+    using Matrix = typename matrix_t<V, N>::type;
+
+    template <typename V, typename It, int N>
+    struct matrix_helper {
+        static Matrix<V, N> create(const It &begin, const It &end, const V &default_value) {
+            return Matrix<V, N>(*begin, matrix_helper<V, It, N - 1>::create(begin + 1, end, default_value));
+        }
+    };
+    template <typename V, typename It>
+    struct matrix_helper<V, It, 0> {
+        static Matrix<V, 0> create(const It &begin __attribute__((unused)),
+                                   const It &end __attribute__((unused)),
+                                   const V &default_value) {
+            return default_value;
+        }
+    };
+}
 
 /* Primitive types */
 using i8  =  int8_t; using  u8 =  uint8_t;
@@ -162,11 +158,11 @@ using usize = size_t;
 
 /* Data structure type */
 template <typename T> using Vector = std::vector<T>;
-template <typename T, int N> using Matrix = internal::vector_utils::Matrix<T, N>;
 template <typename V> using OrderedSet = std::set<V>;
 template <typename V> using HashSet = std::unordered_set<V>;
 template <typename K, typename V> using OrderedMap = std::map<K, V>;
 template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
+template <typename T, int N> using Matrix = internal::matrix::Matrix<T, N>;
 
 /* utils for Vector */
 template <typename V>
@@ -176,11 +172,160 @@ Vector<V> make_pre_allocated_vector(size_t N) {
     return retval;
 }
 
+/* utils for Matrix */
 template <class V, int N>
 Matrix<V, N> make_matrix(const std::array<size_t, N> &shape, V default_value = V()) {
-    return internal::vector_utils::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
+    return internal::matrix::matrix_helper<V, decltype(shape.begin()), N>::create(shape.begin(), shape.end(), default_value);
 }
-/* utils for STL containers */
+
+/* utils for STL iterators */
+namespace internal {
+    template <typename Iterator, typename F>
+    struct MappedIterator {
+        MappedIterator(const Iterator &it, const F &function) : it(it), function(function) {}
+        auto operator *() const {
+            return this->function(this->it);
+        }
+        void operator++() { ++this->it; }
+        void operator+=(size_t n) { this->it += n; }
+        auto operator+(size_t n) const {
+            return MappedIterator<Iterator, F>(this->it + n, this->function);
+        }
+        bool operator==(const MappedIterator<Iterator, F> &rhs) const {
+            return this->it == rhs.it;
+        }
+        bool operator!=(const MappedIterator<Iterator, F> &rhs) const {
+            return !(*this == rhs);
+        }
+    private:
+        Iterator it;
+        F function;
+    };
+    template <typename Iterator, typename P>
+    struct FilteredIterator {
+        FilteredIterator(const Iterator &it, const Iterator &end, const P &predicate)
+                : it(it), end(end), predicate(predicate) {
+            if (this->it != end) {
+                if (!predicate(this->it)) {
+                    this->increment();
+                }
+            }
+        }
+        decltype(auto) operator *() const {
+            return *this->it;
+        }
+        auto operator ->() const {
+            return this->it;
+        }
+        void operator++() {
+            this->increment();
+        }
+        void operator+=(size_t n) {
+            REP (i, n) {
+                this->increment();
+            }
+        }
+        auto operator+(size_t n) const {
+            auto retval = *this;
+            retval += n;
+            return retval;
+        }
+        bool operator==(const FilteredIterator<Iterator, P> &rhs) const {
+            return this->it == rhs.it;
+        }
+        bool operator!=(const FilteredIterator<Iterator, P> &rhs) const {
+            return !(*this == rhs);
+        }
+    private:
+        void increment() {
+            if (this->it == this->end) {
+                return ;
+            }
+            ++this->it;
+            while (this->it != this->end && !this->predicate(this->it)) {
+                ++this->it;
+            }
+        }
+        Iterator it;
+        Iterator end;
+        P predicate;
+    };
+    template <typename Iterator, typename ElementIterator>
+    struct FlattenedIterator {
+        FlattenedIterator(const Iterator &it, const Iterator &end) : it(make_pair(it, ElementIterator())), end(end) {
+            if (this->it.first != this->end) {
+                this->it.second = it->begin();
+            }
+        }
+        decltype(auto) operator *() const {
+            return this->it;
+        }
+        const pair<Iterator, ElementIterator> *operator ->() const {
+            return &this->it;
+        }
+        void operator++() {
+            this->increment();
+        }
+        void operator+=(size_t n) {
+            REP (i, n) {
+                this->increment();
+            }
+        }
+        auto operator+(size_t n) const {
+            auto retval = *this;
+            retval += n;
+            return retval;
+        }
+        bool operator==(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
+            if (this->it.first != rhs.it.first) {
+                return false;
+            }
+            if (this->it.first == this->end || rhs.it.first == rhs.end) {
+                if (this->end == rhs.end) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return this->it.second == rhs.it.second;
+            }
+        }
+        bool operator!=(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
+            return !(*this == rhs);
+        }
+    private:
+        void increment() {
+            auto is_end = [this]() {
+                return this->it.first == this->end;
+            };
+            auto is_valid = [this, &is_end]() {
+                if (is_end()) return false;
+                if (this->it.second == this->it.first->end()) return false;
+                return true;
+            };
+
+            auto increment = [this]() {
+                if (this->it.second == this->it.first->end()) {
+                    ++this->it.first;
+                    if (this->it.first != this->end) {
+                        this->it.second = this->it.first->begin();
+                    }
+                } else {
+                    ++this->it.second;
+                }
+            };
+
+            increment();
+            while (!is_end() && !is_valid()) {
+                increment();
+            }
+
+        }
+        pair<Iterator, ElementIterator> it;
+        Iterator end;
+    };
+}
+
 template <class Iterator>
 struct Container {
     Container(const Iterator &begin, const Iterator &end) : m_begin(begin), m_end(end) {}
@@ -194,173 +339,29 @@ struct Container {
     Iterator m_end;
 };
 
-/* utils for STL iterators */
-template <typename Iterator, typename F>
-struct MappedIterator {
-    MappedIterator(const Iterator &it, const F &function) : it(it), function(function) {}
-    auto operator *() const {
-        return this->function(this->it);
-    }
-    void operator++() { ++this->it; }
-    void operator+=(size_t n) { this->it += n; }
-    auto operator+(size_t n) const {
-        return MappedIterator<Iterator, F>(this->it + n, this->function);
-    }
-    bool operator==(const MappedIterator<Iterator, F> &rhs) const {
-        return this->it == rhs.it;
-    }
-    bool operator!=(const MappedIterator<Iterator, F> &rhs) const {
-        return !(*this == rhs);
-    }
-private:
-    Iterator it;
-    F function;
-};
-template <typename Iterator, typename P>
-struct FilteredIterator {
-    FilteredIterator(const Iterator &it, const Iterator &end, const P &predicate)
-            : it(it), end(end), predicate(predicate) {
-        if (this->it != end) {
-            if (!predicate(this->it)) {
-                this->increment();
-            }
-        }
-    }
-    decltype(auto) operator *() const {
-        return *this->it;
-    }
-    auto operator ->() const {
-        return this->it;
-    }
-    void operator++() {
-        this->increment();
-    }
-    void operator+=(size_t n) {
-        REP (i, n) {
-            this->increment();
-        }
-    }
-    auto operator+(size_t n) const {
-        auto retval = *this;
-        retval += n;
-        return retval;
-    }
-    bool operator==(const FilteredIterator<Iterator, P> &rhs) const {
-        return this->it == rhs.it;
-    }
-    bool operator!=(const FilteredIterator<Iterator, P> &rhs) const {
-        return !(*this == rhs);
-    }
-private:
-    void increment() {
-        if (this->it == this->end) {
-            return ;
-        }
-        ++this->it;
-        while (this->it != this->end && !this->predicate(this->it)) {
-            ++this->it;
-        }
-    }
-    Iterator it;
-    Iterator end;
-    P predicate;
-};
-template <typename Iterator, typename ElementIterator>
-struct FlattenedIterator {
-    FlattenedIterator(const Iterator &it, const Iterator &end) : it(make_pair(it, ElementIterator())), end(end) {
-        if (this->it.first != this->end) {
-            this->it.second = it->begin();
-        }
-    }
-    decltype(auto) operator *() const {
-        return this->it;
-    }
-    const pair<Iterator, ElementIterator> *operator ->() const {
-        return &this->it;
-    }
-    void operator++() {
-        this->increment();
-    }
-    void operator+=(size_t n) {
-        REP (i, n) {
-            this->increment();
-        }
-    }
-    auto operator+(size_t n) const {
-        auto retval = *this;
-        retval += n;
-        return retval;
-    }
-    bool operator==(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
-        if (this->it.first != rhs.it.first) {
-            return false;
-        }
-        if (this->it.first == this->end || rhs.it.first == rhs.end) {
-            if (this->end == rhs.end) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return this->it.second == rhs.it.second;
-        }
-    }
-    bool operator!=(const FlattenedIterator<Iterator, ElementIterator> &rhs) const {
-        return !(*this == rhs);
-    }
-private:
-    void increment() {
-        auto is_end = [this]() {
-            return this->it.first == this->end;
-        };
-        auto is_valid = [this, &is_end]() {
-            if (is_end()) return false;
-            if (this->it.second == this->it.first->end()) return false;
-            return true;
-        };
-
-        auto increment = [this]() {
-            if (this->it.second == this->it.first->end()) {
-                ++this->it.first;
-                if (this->it.first != this->end) {
-                    this->it.second = this->it.first->begin();
-                }
-            } else {
-                ++this->it.second;
-            }
-        };
-
-        increment();
-        while (!is_end() && !is_valid()) {
-            increment();
-        }
-
-    }
-    pair<Iterator, ElementIterator> it;
-    Iterator end;
-};
-
 template <typename C, typename F>
 auto iterator_map(const C &c, F function) {
     using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
-    return Container<MappedIterator<Iterator, F>>(MappedIterator<Iterator, F>(c.begin(), function),
-            MappedIterator<Iterator, F>(c.end(), function));
+    return Container<internal::MappedIterator<Iterator, F>>(
+            internal::MappedIterator<Iterator, F>(c.begin(), function),
+            internal::MappedIterator<Iterator, F>(c.end(), function));
 }
 
 template <typename C, typename P>
 auto iterator_filter(const C &c, P predicate) {
     using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
-    return Container<FilteredIterator<Iterator, P>>(FilteredIterator<Iterator, P>(c.begin(), c.end(), predicate),
-                                                    FilteredIterator<Iterator, P>(c.end(), c.end(), predicate));
+    return Container<internal::FilteredIterator<Iterator, P>>(
+            internal::FilteredIterator<Iterator, P>(c.begin(), c.end(), predicate),
+            internal::FilteredIterator<Iterator, P>(c.end(), c.end(), predicate));
 }
 
 template <typename C>
 auto iterator_flatten(const C &c) {
     using Iterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin())>>;
     using ElementIterator = std::remove_const_t<std::remove_reference_t<decltype(c.begin()->begin())>>;
-    return Container<FlattenedIterator<Iterator, ElementIterator>>(
-            FlattenedIterator<Iterator, ElementIterator>(c.begin(), c.end()),
-            FlattenedIterator<Iterator, ElementIterator>(c.end(), c.end()));
+    return Container<internal::FlattenedIterator<Iterator, ElementIterator>>(
+            internal::FlattenedIterator<Iterator, ElementIterator>(c.begin(), c.end()),
+            internal::FlattenedIterator<Iterator, ElementIterator>(c.end(), c.end()));
 }
 
 /* input */
@@ -416,8 +417,7 @@ Vector<tuple<T1, T2, T3, Args...>> read(const usize length) {
     return read<tuple<T1, T2, T3, Args...>>(length);
 }
 
-/* debug output */
-namespace debug {
+namespace internal {
     template <typename T>
     struct oneline {
         std::string operator()(const T &t) const {
@@ -434,14 +434,14 @@ namespace debug {
             return oss.str();
         }
     };
-    struct oneline_tuple {
-        template<class V>
-        void operator()(Vector<std::string> &strs, const V &v) const {
-            strs.emplace_back(oneline<V>()(v));
-        }
-    };
     template <typename ...Args>
     struct oneline<tuple<Args...>> {
+        struct oneline_tuple {
+            template<class V>
+            void operator()(Vector<std::string> &strs, const V &v) const {
+                strs.emplace_back(oneline<V>()(v));
+            }
+        };
         std::string operator()(const tuple<Args...> &t) const {
             std::ostringstream oss;
             Vector<std::string> strs;
@@ -589,15 +589,15 @@ namespace debug {
 
 template <typename T>
 void dump(const T& t) {
-    using namespace debug;
+    using namespace internal;
     std::cerr << oneline<T>()(t) << std::endl;
 }
 template <typename V1, typename V2, typename ...Args>
 void dump(const V1 &v1, const V2 &v2, const Args&... args) {
-    using namespace debug;
+    using namespace internal;
     const auto x = std::make_tuple(v1, v2, args...);
     Vector<std::string> strs;
-    internal::tuple_utils::for_each<debug::oneline_tuple, Vector<std::string>, Args...>(strs, x);
+    internal::tuple_utils::for_each<typename internal::oneline<tuple<Args...>>::oneline_tuple, Vector<std::string>, Args...>(strs, x);
     REPR (i, strs.size()) {
         std::cerr << strs[i];
         if (i != 0) {
@@ -611,7 +611,7 @@ template <typename C>
 std::string as_set(const C& ctr) {
     Vector<std::string> values;
 
-    using namespace debug;
+    using namespace internal;
     EACH (x, ctr) {
         values.emplace_back(oneline<decltype(x)>()(x));
     }
@@ -627,7 +627,7 @@ std::string as_set(const C& ctr) {
 
 template <typename C>
 std::string as_map(const C& ctr) {
-    using namespace debug;
+    using namespace internal;
 
     auto ks = keys<C>()(ctr);
     Vector<std::string> keys;
@@ -658,7 +658,7 @@ std::string as_map(const C& ctr) {
 
 template <typename C>
 std::string as_table(const C &ctr) {
-    using namespace debug;
+    using namespace internal;
     auto rkeys = keys<C>()(ctr);
     auto ckeys = OrderedSet<std::string>();
 
