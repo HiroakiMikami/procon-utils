@@ -369,8 +369,6 @@ namespace internal { namespace graph {
         std::string cmd = "dot -Tgtk \"";
         cmd += tmpfilename;
         cmd += "\"";
-        dump(cmd);
-        dump(dot);
         std::system(cmd.c_str());
 
         /* Remove temporary file */
