@@ -299,7 +299,6 @@ struct Graph {
     Container container;
 };
 
-
 template <typename EdgeLabel>
 using AdjacencyList = Graph<EdgeLabel, internal::graph::AdjacencyList<EdgeLabel>>;
 using SimpleAdjacencyList = AdjacencyList<void>;
@@ -311,3 +310,21 @@ using AdjacencyMatrix = Graph<EdgeLabel, internal::graph::AdjacencyMatrix<EdgeLa
 using SimpleAdjacencyMatrix = AdjacencyMatrix<void>;
 using WeightedAdjacencyMatrix = AdjacencyMatrix<i64>;
 using UnsignedWeightedAdjacencyMatrix = AdjacencyMatrix<u64>;
+
+namespace internal {
+    template <typename Label, typename Container>
+    struct oneline<Graph<Label, Container>> {
+        std::string operator()(const Graph<Label, Container> &g) const {
+            Vector<size_t> V;
+            REP (i, g.vertices_size()) {
+                V.push_back(i);
+            }
+            Vector<Edge<Label>> E;
+            EACH_V(e, g.edges()) {
+                E.push_back(e);
+            }
+            using P = pair<decltype(V), decltype(E)>;
+            return oneline<P>()(make_pair(V, E));
+        }
+    };
+}

@@ -177,3 +177,23 @@ TYPED_TEST(g_LabeledGraphTest, ToUndirectedTest) {
     }
     EXPECT_EQ(1, cnt);
 }
+
+TYPED_TEST(g_GraphTest, OutputTest) {
+    auto g = this->mkGraph({{0, 1}, {0, 2}, {1, 2}});
+    testing::internal::CaptureStderr();
+    dump(g);
+    auto output = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(string("{[0, 1, 2], [{0, 1}, {0, 2}, {1, 2}]}\n"), output);
+}
+
+TYPED_TEST(g_LabeledGraphTest, OutputTest) {
+    auto edges = Vector<tuple<size_t, size_t, i64>>();
+    edges.push_back({0, 1, 10});
+    edges.push_back({0, 2, 20});
+    edges.push_back({1, 2, 30});
+    auto g = this->mkGraph(edges);
+    testing::internal::CaptureStderr();
+    dump(g);
+    auto output = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(string("{[0, 1, 2], [{0, 1, 10}, {0, 2, 20}, {1, 2, 30}]}\n"), output);
+}
