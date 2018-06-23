@@ -328,3 +328,69 @@ namespace internal {
         }
     };
 }
+
+#ifdef __LOCAL__
+#include <cstdio>
+#include <fstream>
+
+namespace internal { namespace graph {
+    template <typename Label, typename Container, typename F>
+    void show(const Graph<Label, Container> &g, F get_label) {
+        /* Convert graph to dot format*/
+        std::ostringstream oss;
+        oss << "digraph{\n";
+        // Vertices
+        REP (i, g.vertices_size()) {
+            oss << "node_" << i << " [label=\"" << i << "\"];" << "\n";
+        }
+
+        // Edges
+        EACH_V(edge, g.edges()) {
+            auto from = get<0>(edge);
+            auto to = get<1>(edge);
+            auto label = get_label(edge);
+            std::ostringstream l;
+            l << label;
+            if (l.str().empty()) {
+                oss << "node_" << from << " -> " << "node_" << to << ";\n";
+            } else {
+                oss << "node_" << from << " -> " << "node_" << to << " [label=" << label << "];\n";
+            }
+        }
+
+        oss << "}\n";
+        auto dot = oss.str();
+
+        /* Generate temporary file */
+        auto tmpfilename = std::tmpnam(nullptr);
+        std::ofstream s(tmpfilename);
+        s << dot << std::flush;
+
+        std::string cmd = "dot -Tgtk \"";
+        cmd += tmpfilename;
+        cmd += "\"";
+        dump(cmd);
+        dump(dot);
+        std::system(cmd.c_str());
+
+        /* Remove temporary file */
+        std::remove(tmpfilename);
+    }
+}}
+namespace graph {
+    template <typename Container>
+    void show(const Graph<void, Container> &g) {
+        internal::graph::show(g, [](auto x) { return ""; });
+    }
+    template <typename Label, typename Container>
+    void show(const Graph<Label, Container> &g) {
+        internal::graph::show(g, [](auto x) { return get<2>(x); });
+    }
+}
+#else
+namespace graph {
+    template <typename Label, typename Container>
+    void show(const Graph<Label, Container> &g) {
+    }
+}
+#endif
