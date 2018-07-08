@@ -41,7 +41,6 @@ using std::get;
 /* TODO remove them */
 using std::vector;
 using std::queue;
-using std::priority_queue;
 using std::stack;
 
 // algorithms
@@ -164,6 +163,8 @@ template <typename V> using HashSet = std::unordered_set<V>;
 template <typename K, typename V> using OrderedMap = std::map<K, V>;
 template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
 template <typename T, int N> using Matrix = internal::matrix::Matrix<T, N>;
+template <typename T, typename Compare = std::less<T>, typename Container = std::vector<T>>
+using PriorityQueue = std::priority_queue<T, Container, Compare>;
 
 /* utils for Vector */
 template <typename V>

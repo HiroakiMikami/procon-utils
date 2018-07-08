@@ -58,7 +58,7 @@ namespace graph {
         EdgeLabel cost = 0;
 
         auto cmp = [&](const auto &e1, const auto &e2) { return get<2>(e1) > get<2>(e2); };
-        priority_queue<_Edge, vector<_Edge>, decltype(cmp)> Q(cmp);
+        PriorityQueue<_Edge, decltype(cmp)> Q(cmp);
 
         for (auto edge: g.edges()) {
             // undirected graphを前提
