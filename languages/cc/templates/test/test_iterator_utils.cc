@@ -20,6 +20,12 @@ TEST(IteratorUtilsTest, FilteredIteratorTest) {
         cnt += 1;
     }
     EXPECT_EQ(3, cnt);
+
+    cnt = 0;
+    for (auto x: iterator_filter(s, [](const auto &x) { return false; })) {
+        cnt += 1;
+    }
+    EXPECT_EQ(0, cnt);
 }
 TEST(IteratorUtilsTest, FlattenedIteratorTest) {
     auto s = Matrix<int, 2>{{1}, {2}, {3}, {4}, {5}, {6}};
@@ -30,7 +36,7 @@ TEST(IteratorUtilsTest, FlattenedIteratorTest) {
     }
     EXPECT_EQ(6, cnt);
 
-    auto s2 = Vector<Vector<i64>>({{0}, {}, {1}});
+    auto s2 = Vector<Vector<i64>>({{}, {0}, {1}});
     cnt = 0;
     for (auto x: iterator_flatten(s2)) {
         if (cnt == 0) {
@@ -41,6 +47,13 @@ TEST(IteratorUtilsTest, FlattenedIteratorTest) {
         cnt += 1;
     }
     EXPECT_EQ(2, cnt);
+
+    auto s3 = Vector<Vector<i64>>({});
+    cnt = 0;
+    for (auto x: iterator_flatten(s3)) {
+        cnt += 1;
+    }
+    EXPECT_EQ(0, cnt);
 }
 TEST(IteratorUtilsTest, CombineMultipleIteratorHelperTest) {
     auto s = Matrix<int, 2>{{1}, {2}, {3}, {4}, {5}, {6}};

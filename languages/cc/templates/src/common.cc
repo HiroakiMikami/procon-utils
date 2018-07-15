@@ -258,6 +258,7 @@ namespace internal {
             if (this->it.first != this->end) {
                 this->it.second = it->begin();
             }
+            this->find_valid();
         }
         decltype(auto) operator *() const {
             return this->it;
@@ -296,30 +297,33 @@ namespace internal {
             return !(*this == rhs);
         }
     private:
-        void increment() {
-            auto is_end = [this]() {
-                return this->it.first == this->end;
-            };
-            auto is_valid = [this, &is_end]() {
-                if (is_end()) return false;
-                if (this->it.second == this->it.first->end()) return false;
-                return true;
-            };
-
-            auto increment = [this]() {
-                if (this->it.second == this->it.first->end()) {
-                    ++this->it.first;
-                    if (this->it.first != this->end) {
-                        this->it.second = this->it.first->begin();
-                    }
-                } else {
-                    ++this->it.second;
+        bool is_end() const {
+            return this->it.first == this->end;
+        }
+        bool is_valid() const {
+            if (this->is_end()) return false;
+            if (this->it.second == this->it.first->end()) return false;
+            return true;
+        }
+        void _increment() {
+            if (this->it.second == this->it.first->end()) {
+                ++this->it.first;
+                if (this->it.first != this->end) {
+                    this->it.second = this->it.first->begin();
                 }
-            };
-
-            increment();
-            while (!is_end() && !is_valid()) {
-                increment();
+            } else {
+                ++this->it.second;
+            }
+        }
+        void find_valid() {
+            while (!this->is_end() && !this->is_valid()) {
+                this->_increment();
+            }
+        }
+        void increment() {
+            this->_increment();
+            while (!this->is_end() && !this->is_valid()) {
+                this->_increment();
             }
 
         }
