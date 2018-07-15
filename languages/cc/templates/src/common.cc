@@ -601,9 +601,10 @@ void dump(const T& t) {
 template <typename V1, typename V2, typename ...Args>
 void dump(const V1 &v1, const V2 &v2, const Args&... args) {
     using namespace internal;
-    const auto x = std::make_tuple(v1, v2, args...);
+    using F = typename oneline<tuple<V1, V2, Args...>>::oneline_tuple;
+    auto x = std::make_tuple(v1, v2, args...);
     Vector<std::string> strs;
-    internal::tuple_utils::for_each<typename internal::oneline<tuple<Args...>>::oneline_tuple, Vector<std::string>, Args...>(strs, x);
+    internal::tuple_utils::for_each<F, Vector<std::string>, V1, V2, Args...>(strs, x);
     REPR (i, strs.size()) {
         std::cerr << strs[i];
         if (i != 0) {

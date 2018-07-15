@@ -12,6 +12,11 @@ TEST(OutputTest, OutputMultipleValue) {
     dump(0, 'f');
     auto output = testing::internal::GetCapturedStderr();
     EXPECT_EQ(string("0, f\n"), output);
+
+    testing::internal::CaptureStderr();
+    dump(0, 1, 'f');
+    output = testing::internal::GetCapturedStderr();
+    EXPECT_EQ(string("0, 1, f\n"), output);
 }
 
 TEST(OnelineOutputTest, OutputPairTest) {
