@@ -8,138 +8,119 @@
 #endif
 
 namespace graph {
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2, class Container, class Push, class Pop>
-    void traverse(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
-                  Container &container, const Push &push, const Pop &pop,
-                  const F1 &process,
-                  const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        for (const auto &n: start) {
-            for (auto edge: g.outgoings(n)) {
-                if (is_added(edge)) push(container, edge);
-            }
+    template<typename EdgeLabel, typename GraphContainer,
+            typename Container, typename Push, typename Pop,
+            typename Visit, typename FilterNot>
+    void traverse(const Graph<EdgeLabel, GraphContainer> &g,
+                  const std::vector<size_t> &start,
+                  const Push &push = Push(), const Pop &pop = Pop(),
+                  const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
+                  Container container;
+
+        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        using std::experimental::make_optional;
+        for (const auto &s : start) {
+            push(container, make_pair(Optional{}, s));
         }
 
         while (!container.empty()) {
-            auto x = pop(container);
-
-            if (process(x)) {
-                return ;
+            std::pair<Optional, size_t> x = pop(container);
+            if (filter_not(x.first, x.second)) {
+                continue;
             }
 
-            for (const auto edge: g.outgoings(get<1>(x))) {
-                if (is_added(edge)) push(container, edge);
+            if (visit(x.first, x.second)) {
+                break;
+            }
+
+            for (auto edge: g.outgoings(x.second)) {
+                push(container, make_pair(make_optional(edge), get<1>(edge)));
             }
         }
     }
 
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void dfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
-                                     const F1 &process,
-                                     const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        using _Edge = Edge<EdgeLabel>;
-        std::stack<_Edge> s;
+    template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
+    void dfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
+             const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
+        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        auto push = [](std::stack<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) { container.push(elem); };
+        auto pop = [](std::stack<std::pair<Optional, size_t>> &container) {
+            auto retval = container.top();
+            container.pop();
+            return retval;
+        };
 
-        traverse(g, start, s,
-                 [](auto &s, auto &edge) { s.push(edge); },
-                 [](auto &s) {
-                     auto x = s.top();
-                     s.pop();
-                     return x;
-                 },
-                 process, is_added);
-    }
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
-             const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        std::vector<bool> is_visited(g.vertices_size(), false);
-        dfs_with_duplicate_vertices(g, start, process,
-                                    [&is_added, &is_visited](const auto &edge) {
-                                        if (!is_added(edge)) {
-                                            return false;
-                                        }
-                                        auto retval = !is_visited[get<1>(edge)];
-                                        is_visited[get<1>(edge)] = true;
-                                        return retval;
-                                    });
-    }
-    template <typename EdgeLabel, typename InnerContainer, class F1>
-    void dfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-        dfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
+        traverse<EdgeLabel, GraphContainer,
+                std::stack<std::pair<Optional, size_t>>, decltype(push), decltype(pop),
+                Visit, FilterNot>(g, start, push, pop, visit, filter_not);
     }
 
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void bfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
-                                     const F1 &process,
-                                     const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        using _Edge = Edge<EdgeLabel>;
-        std::queue<_Edge> s;
+    template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
+    void bfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
+             const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
+        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        auto push = [](std::queue<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) { container.push(elem); };
+        auto pop = [](std::queue<std::pair<Optional, size_t>> &container) {
+            auto retval = container.front();
+            container.pop();
+            return retval;
+        };
 
-        traverse(g, start, s,
-                 [](auto &s, auto &edge) { s.push(edge); },
-                 [](auto &s) {
-                     auto x = s.front();
-                     s.pop();
-                     return x;
-                 },
-                 process, is_added);
-    }
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
-             const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        std::vector<bool> is_visited(g.vertices_size(), false);
-        bfs_with_duplicate_vertices(g, start, process,
-                                    [&is_added, &is_visited](const auto &edge) {
-                                        if (!is_added(edge)) {
-                                            return false;
-                                        }
-                                        auto retval = !is_visited[get<1>(edge)];
-                                        is_visited[get<1>(edge)] = true;
-                                        return retval;
-                                    });
-    }
-    template <typename EdgeLabel, typename InnerContainer, class F1>
-    void bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-        bfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
+        traverse<EdgeLabel, GraphContainer,
+                std::queue<std::pair<Optional, size_t>>, decltype(push), decltype(pop),
+                Visit, FilterNot>(g, start, push, pop, visit, filter_not);
     }
 
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void zero_one_bfs_with_duplicate_vertices(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start,
-                                              const F1 &process,
-                                     const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        using _Edge = Edge<EdgeLabel>;
-        std::deque<_Edge> s;
+    template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
+    void zero_one_bfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
+             const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
+        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        auto push = [](std::deque<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) {
+            if (elem.first) {
+                if (get<2>(elem.first.value())) {
+                    container.push_back(elem);
+                } else {
+                    container.push_front(elem);
+                }
+            } else {
+                container.push_back(elem);
+            }
+        };
+        auto pop = [](std::deque<std::pair<Optional, size_t>> &container) {
+            auto retval = container.front();
+            container.pop_front();
+            return retval;
+        };
 
-        traverse(g, start, s,
-                 [](auto &s, auto &edge) {
-                     if (get<2>(edge)) {
-                         s.push_back(edge);
-                     } else {
-                         s.push_front(edge);
-                     }
-                 },
-                 [](auto &s) {
-                     auto x = s.front();
-                     s.pop_front();
-                     return x;
-                 },
-                 process, is_added);
+        traverse<EdgeLabel, GraphContainer,
+                std::deque<std::pair<Optional, size_t>>, decltype(push), decltype(pop),
+                Visit, FilterNot>(g, start, push, pop, visit, filter_not);
     }
-    template <typename EdgeLabel, typename InnerContainer, class F1, class F2>
-    void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process,
-             const F2 &is_added = [](const Edge<EdgeLabel> &e) { return true; }) {
-        std::vector<bool> is_visited(g.vertices_size(), false);
-        zero_one_bfs_with_duplicate_vertices(g, start, process,
-                                    [&is_added, &is_visited](const auto &edge) {
-                                        if (!is_added(edge)) {
-                                            return false;
-                                        }
-                                        auto retval = !is_visited[get<1>(edge)];
-                                        is_visited[get<1>(edge)] = true;
-                                        return retval;
-                                    });
+
+    namespace internal {
+        template<typename EdgeLabel, typename Container>
+        struct FilterDuplicated {
+            mutable std::vector<bool> visited;
+            FilterDuplicated(const Graph<EdgeLabel, Container> &g) : visited(g.vertices_size(), false) {}
+
+            bool operator()(const std::experimental::optional<Edge<EdgeLabel>> &edge __attribute__((unused)), size_t v) const {
+                if (visited[v]) {
+                    return true;
+                }
+
+                visited[v] = true;
+                return false;
+            }
+        };
     }
-    template <typename EdgeLabel, typename InnerContainer, class F1>
-    void zero_one_bfs(const Graph<EdgeLabel, InnerContainer> &g, const std::vector<size_t> &start, const F1 &process) {
-        zero_one_bfs(g, start, process, [](const auto &edge __attribute__((unused))) { return true; });
+    template <typename EdgeLabel, typename Container>
+    auto filter_nothing(const Graph<EdgeLabel, Container>& g __attribute__((unused))) {
+        auto retval = [](const auto &edge __attribute__((unused)), size_t v __attribute__((unused))) { return false; };
+        return retval;
     }
+
+    template<typename EdgeLabel, typename Container>
+    internal::FilterDuplicated<EdgeLabel, Container> filter_duplicated(const Graph<EdgeLabel, Container> &g) {
+        return internal::FilterDuplicated<EdgeLabel, Container>(g);
+    };
 }
