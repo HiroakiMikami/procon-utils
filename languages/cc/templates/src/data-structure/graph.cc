@@ -1,6 +1,7 @@
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
+#include <cassert>
 #include <experimental/optional>
 
 #ifndef MAIN
