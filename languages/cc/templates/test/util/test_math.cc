@@ -59,7 +59,7 @@ TEST(MathTest, CombinationTest) {
     EXPECT_EQ(4, combination(4, 3));
     EXPECT_EQ(1, combination(4, 4));
 
-    // TODO overlow test
+    // TODO overflow test
 }
 
 TEST(MathTest, IsPrimeTest) {
@@ -84,4 +84,23 @@ TEST(MathTest, SieveTest) {
                            true, false, true, false, false}),
             res.second
     );
+}
+
+TEST(MathTest, ChineseRemTest) {
+    auto res = chinese_rem(2, 3, 3, 5);
+    EXPECT_TRUE(res);
+    EXPECT_EQ(res.value().first, 8);
+    EXPECT_EQ(res.value().second, 15);
+
+    EXPECT_FALSE(chinese_rem(2, 4, 4, 8));
+}
+
+
+TEST(MathTest, ChineseRemCtrTest) {
+    auto res = chinese_rem_ctr(Vector<i64>{2, 3}, Vector<i64>{3, 5});
+    EXPECT_TRUE(res);
+    EXPECT_EQ(res.value().first, 8);
+    EXPECT_EQ(res.value().second, 15);
+
+    EXPECT_FALSE(chinese_rem_ctr(Vector<i64>{2, 4}, Vector<i64>{4, 8}));
 }

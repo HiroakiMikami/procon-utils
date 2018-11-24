@@ -154,22 +154,38 @@ static pair<Vector<i64>, Vector<bool>> sieve(i64 n) {
     return {prime, is_prime_};
 }
 
-#if 0
 /*
  * x = b1 (mod m1)
  * x = b2 (mod m2)
- * を満たす時、
- * x = pair.first (mod pair.second)
- * を満たす、pairを返す
+ * => x = r.first (mod r.second) (r is a return value)
  */
-static pair<i64, i64> chinese_rem(i64 b1, i64 m1, i64 b2, i64 m2) {
+static std::experimental::optional<pair<i64, i64>> chinese_rem(i64 b1, i64 m1, i64 b2, i64 m2) {
+    auto elem = ext_gcd(m1, m2);
+    auto p = get<0>(elem);
+    auto d = get<2>(elem);
+    if ((b2 - b1) % d != 0) return {};
+
+    i64 m = m1 * (m2 / d); //< lcm(m1, m2)
+    i64 r = mod(b1 + m1 * ((b2 - b1) / d * p % (m2 / d)), m);
+    return make_optional(std::make_pair(r, m));
 
 }
-template <typename Iterator1, Iterator2>
-static pair<i64, i64> chinese_rem(Iterator1 b_begin, Iterator1, b_end, Iterator2 m_begin, Iterator2 m_end) {
+template <typename Iterator1, typename Iterator2>
+static std::experimental::optional<pair<i64, i64>> chinese_rem_ctr(Iterator1 b_begin, Iterator1 b_end, Iterator2 m_begin, Iterator2 m_end) {
+    i64 r = 0, M = 1;
+    auto b = b_begin;
+    auto m = m_begin;
+    for (; b != b_end && m != m_end; ++b, ++m) {
+        auto elem = ext_gcd(M, *m);
+        auto p = get<0>(elem);
+        auto d = get<2>(elem);
 
+        if ((*b - r) % d != 0) return {};
+        r += M * ((*b - r) / d * p % (*m / d));
+        M *= *m / d;
+    }
+    return make_optional(std::make_pair(mod(r, M), M));
 }
-static pair<i64, i64> chinese_rem(const Vector<i64> &b, const Vector<i64> &m) {
-    return chinese_rem(CTR(b), CTR(m));
+static std::experimental::optional<pair<i64, i64>> chinese_rem_ctr(const Vector<i64> &b, const Vector<i64> &m) {
+    return chinese_rem_ctr<decltype(b.begin()), decltype(m.begin())>(CTR(b), CTR(m));
 }
-#endif
