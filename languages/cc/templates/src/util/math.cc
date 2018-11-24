@@ -42,6 +42,27 @@ static i64 gcd_ctr(const Vector<i64> &xs) {
     return gcd_ctr(xs.begin(), xs.end());
 }
 
+
+
+/*
+ * a * get<0>(r) + b * get<1>(r) = get<2>(r), get<2>(r) = gcd(a, b)
+ */
+static tuple<i64, i64, i64> ext_gcd(i64 a, i64 b) {
+    auto ext_gcd_ = [](i64 a, i64 b, i64& p, i64 &q, auto f) -> i64 {
+        if (b == 0) {
+            p = 1;
+            q = 0;
+            return a;
+        }
+        i64 d = f(b, a % b, q, p, f);
+        q -= a / b * p;
+        return d;
+    };
+    i64 p = 0, q = 0;
+    auto d = ext_gcd_(a, b, p, q, ext_gcd_);
+    return make_tuple(p, q, d);
+}
+
 static i64 lcm(i64 a, i64 b) {
     auto x = gcd(a, b);
     return a / x * b;

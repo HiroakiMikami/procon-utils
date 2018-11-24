@@ -27,6 +27,12 @@ TEST(MathTest, GcdCtrTest) {
     EXPECT_EQ(1, gcd_ctr({6, 15, 2}));
 }
 
+TEST(MathTest, ExtGcdTest) {
+    EXPECT_EQ(make_tuple(1, 0, 1), ext_gcd(1, 0));
+    EXPECT_EQ(make_tuple(0, 1, 1), ext_gcd(0, 1));
+    EXPECT_EQ(make_tuple(1, 0, 2), ext_gcd(2, 4));
+}
+
 TEST(MathTest, LcmTest) {
     EXPECT_EQ(2, lcm(1, 2));
     EXPECT_EQ(4, lcm(2, 4));
