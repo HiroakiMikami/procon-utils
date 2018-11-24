@@ -4,6 +4,12 @@
 #include "common.cc"
 #include "util/math.cc"
 
+TEST(MathTest, ModTest) {
+    EXPECT_EQ(0, mod(1, 1));
+    EXPECT_EQ(2, mod(5, 3));
+    EXPECT_EQ(3, mod(-17, 5));
+}
+
 TEST(MathTest, PowTest) {
     EXPECT_EQ(1, pow(2, 0));
     EXPECT_EQ(2, pow(2, 1));

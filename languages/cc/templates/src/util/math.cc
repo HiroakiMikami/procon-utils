@@ -2,6 +2,10 @@
 #include "common.cc"
 #endif
 
+static i64 mod(i64 a, i64 m) {
+    return (a % m + m) % m;
+}
+
 /*
  * n^r
  */
@@ -149,3 +153,23 @@ static pair<Vector<i64>, Vector<bool>> sieve(i64 n) {
     }
     return {prime, is_prime_};
 }
+
+#if 0
+/*
+ * x = b1 (mod m1)
+ * x = b2 (mod m2)
+ * を満たす時、
+ * x = pair.first (mod pair.second)
+ * を満たす、pairを返す
+ */
+static pair<i64, i64> chinese_rem(i64 b1, i64 m1, i64 b2, i64 m2) {
+
+}
+template <typename Iterator1, Iterator2>
+static pair<i64, i64> chinese_rem(Iterator1 b_begin, Iterator1, b_end, Iterator2 m_begin, Iterator2 m_end) {
+
+}
+static pair<i64, i64> chinese_rem(const Vector<i64> &b, const Vector<i64> &m) {
+    return chinese_rem(CTR(b), CTR(m));
+}
+#endif
