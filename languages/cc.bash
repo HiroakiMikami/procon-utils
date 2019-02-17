@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function init() {
+    local target=$1
+    local utils_base=${UTILS_BASE:-$(dirname $0)}
+    mkdir -p ${target}/src/
+    ln -sf ${utils_base}/languages/cc/workspace/CMakeLists.txt ${target}/src/
+}
+
 function create_newfile() {
     set -u
     local target=$1

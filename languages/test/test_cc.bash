@@ -4,6 +4,17 @@ UTILS_BASE=$(realpath ./)
 source scripts/util.bash
 source languages/cc.bash
 
+@test "init" {
+    workspace=$(mktemp -d)
+    mkdir -p $workspace
+    init "$workspace"
+
+    [ -e $workspace/src/CMakeLists.txt ]
+    [ $(readlink $workspace/src/CMakeLists.txt) == "$UTILS_BASE/languages/cc/workspace/CMakeLists.txt" ]
+
+    rm -rf $workspace
+}
+
 @test "create_newfile" {
     tmpfile=$(mktemp)
     workspace=$(mktemp -d)

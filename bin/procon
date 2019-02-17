@@ -15,6 +15,7 @@ Usage: $(basename $0) <command> <args>
 
 Commands:
     login <service>
+    init <language> [-d <directory>]
     prepare <directory> [-l language] [<task_name>+]
     stats [-o <output-dir>] <source file>+
     update <source file>
@@ -67,6 +68,28 @@ function cmd_login() {
     local service=$1
     activate_service $service
     login
+}
+function cmd_init() {
+    set -u
+    local language=$1
+    shift 1
+    local directory=./
+    while getopts d: OPT
+    do
+        case $OPT in
+            d)
+                directory=$(normalize $OPTARG)
+                ;;
+            \?)
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    shift $((OPTIND - 1))
+
+    activate_language $language
+    init $directory
 }
 function cmd_prepare() {
     set -u
@@ -318,6 +341,9 @@ function cmd_test() {
 case $command in
     "login")
         cmd_login $@
+        ;;
+    "init")
+        cmd_init $@
         ;;
     "prepare")
         cmd_prepare $@

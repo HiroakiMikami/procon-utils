@@ -1,5 +1,11 @@
 #!/bin/bash
 
+function init() {
+    set -u
+    local target=$1
+    echo $target
+}
+
 function create_newfile() {
     set -u
     local target=$1
