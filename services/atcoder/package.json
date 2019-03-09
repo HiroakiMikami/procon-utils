@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "scripts": {
+    "compile": "$(npm bin)/tsc -p ./"
+  },
+  "dependencies": {
+    "atcoder.js": "github:hiroakimikami/AtCoder.js#release/c79c2d2ecec18a770670b5663edc24b5268d8c48",
+    "cheerio": "^1.0.0-rc.2"
+  },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.11",
+    "@types/request": "^2.48.1",
+    "typescript": "^3.3.3333"
+  }
+}
