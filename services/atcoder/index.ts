@@ -8,7 +8,7 @@ async function main() {
     const sessionfile = process.argv[2]
     const cachedir = process.argv[3]
     const command = process.argv[4]
-    const domain = process.env["ATCODER_DOMAIN"] || "http://atcoder.jp"
+    const domain = process.env["ATCODER_DOMAIN"] || "https://atcoder.jp"
 
     let session: AtCoder.Session = new AtCoder.Session()
     if (await promisify(fs.exists)(sessionfile)) {
