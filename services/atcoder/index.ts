@@ -57,4 +57,4 @@ async function main() {
     await promisify(fs.writeFile)(sessionfile, JSON.stringify(session.toJSON()))
 }
 
-main()
+main().catch(console.error)
