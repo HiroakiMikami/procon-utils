@@ -15,7 +15,7 @@ async function main() {
         const data = await promisify(fs.readFile)(sessionfile, "utf8")
         session = new AtCoder.Session(data)
     }
-    const atcoder = new AtCoder.AtCoder(session, { cachedir, url: { atcoder: domain }})
+    const atcoder = new AtCoder.AtCoder(session, { cache: { cachedir, maxMemoryEntries: 0 }, url: { atcoder: domain }})
 
     if (command == "login") {
         const username = process.argv[5]

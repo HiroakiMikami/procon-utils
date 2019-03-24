@@ -11,7 +11,4 @@
 !/init.sh
 !/bin/procon
 !services/test/*/*.html
-!services/atcoder/package.json
-!services/atcoder/package-lock.json
-!services/atcoder/tsconfig.json
-!services/atcoder/index.ts
+!services/atcoder/
