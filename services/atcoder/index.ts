@@ -33,7 +33,7 @@ async function main() {
         if (command == "task_url") {
             console.log(`${domain}/${contestName}/tasks/${task.id}`)
         } else if (command == "score") {
-            const score = await contest.task(task.id).score
+            const score = await contest.task(task.id).score()
             console.log(score)
         } else if (command == "testcases") {
             const targetDir = process.argv[7]
