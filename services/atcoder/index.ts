@@ -24,11 +24,10 @@ async function main() {
     } else {
         const contestName = process.argv[5]
         const taskName = process.argv[6]
-        const index = taskName.charCodeAt(0) - 'a'.charCodeAt(0)
 
         const contest = atcoder.contest(contestName)
         const tasks = await contest.tasks()
-        const task = tasks[index]
+        const task = tasks.find(task => task.name[0].toLowerCase() == taskName)
 
         if (command == "task_url") {
             console.log(`${domain}/${contestName}/tasks/${task.id}`)
