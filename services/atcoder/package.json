@@ -4,7 +4,7 @@
     "compile": "$(npm bin)/tsc -p ./"
   },
   "dependencies": {
-    "atcoder.js": "github:hiroakimikami/AtCoder.js#release/4c6044398b724d679fc7be680bfd8d0d3b8535d8",
+    "atcoder.js": "github:hiroakimikami/AtCoder.js#release/dffbb33afcadbbe9d7c4bfde8b9350163aec402b",
     "cheerio": "^1.0.0-rc.2"
   },
   "devDependencies": {
