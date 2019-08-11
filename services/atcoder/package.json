@@ -3,13 +3,13 @@
   "scripts": {
     "compile": "$(npm bin)/tsc -p ./"
   },
+  "devDependencies": {
+    "@types/cheerio": "^0.22.13",
+    "@types/request": "^2.48.2",
+    "typescript": "^3.5.3"
+  },
   "dependencies": {
     "atcoder.js": "github:hiroakimikami/AtCoder.js#release/dffbb33afcadbbe9d7c4bfde8b9350163aec402b",
-    "cheerio": "^1.0.0-rc.2"
-  },
-  "devDependencies": {
-    "@types/cheerio": "^0.22.11",
-    "@types/request": "^2.48.1",
-    "typescript": "^3.3.3333"
+    "cheerio": "^1.0.0-rc.3"
   }
 }
