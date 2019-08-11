@@ -8,7 +8,7 @@
 !*.bash
 !.gitignore
 !CMakeLists.txt
-!/init.sh
+!/procon-utils/init.bash
 !/bin/procon
 !services/test/*/*.html
 !services/atcoder/
