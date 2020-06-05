@@ -159,7 +159,7 @@ static pair<Vector<i64>, Vector<bool>> sieve(i64 n) {
  * x = b2 (mod m2)
  * => x = r.first (mod r.second) (r is a return value)
  */
-static std::experimental::optional<pair<i64, i64>> chinese_rem(i64 b1, i64 m1, i64 b2, i64 m2) {
+static std::optional<pair<i64, i64>> chinese_rem(i64 b1, i64 m1, i64 b2, i64 m2) {
     auto elem = ext_gcd(m1, m2);
     auto p = get<0>(elem);
     auto d = get<2>(elem);
@@ -171,7 +171,7 @@ static std::experimental::optional<pair<i64, i64>> chinese_rem(i64 b1, i64 m1, i
 
 }
 template <typename Iterator1, typename Iterator2>
-static std::experimental::optional<pair<i64, i64>> chinese_rem_ctr(Iterator1 b_begin, Iterator1 b_end, Iterator2 m_begin, Iterator2 m_end) {
+static std::optional<pair<i64, i64>> chinese_rem_ctr(Iterator1 b_begin, Iterator1 b_end, Iterator2 m_begin, Iterator2 m_end) {
     i64 r = 0, M = 1;
     auto b = b_begin;
     auto m = m_begin;
@@ -186,6 +186,6 @@ static std::experimental::optional<pair<i64, i64>> chinese_rem_ctr(Iterator1 b_b
     }
     return make_optional(std::make_pair(mod(r, M), M));
 }
-static std::experimental::optional<pair<i64, i64>> chinese_rem_ctr(const Vector<i64> &b, const Vector<i64> &m) {
+static std::optional<pair<i64, i64>> chinese_rem_ctr(const Vector<i64> &b, const Vector<i64> &m) {
     return chinese_rem_ctr<decltype(b.begin()), decltype(m.begin())>(CTR(b), CTR(m));
 }

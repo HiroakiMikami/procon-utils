@@ -2,7 +2,7 @@
 #include <unordered_map>
 #include <type_traits>
 #include <cassert>
-#include <experimental/optional>
+#include <optional>
 
 #ifndef MAIN
 #include "common.cc"
@@ -126,7 +126,7 @@ namespace internal { namespace graph {
     template <typename EdgeLabel>
     using AdjacencyMatrixElement = typename std::conditional<
             std::is_void<EdgeLabel>::value, bool,
-            std::experimental::optional<EdgeLabel>>::type;
+            std::optional<EdgeLabel>>::type;
 
     template <typename EdgeLabel>
     using AdjacencyMatrix= Matrix<AdjacencyMatrixElement<EdgeLabel>, 2>;
@@ -144,7 +144,7 @@ namespace internal { namespace graph {
     template<class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
     static Edge<EdgeLabel> to_edge(
             size_t n1, size_t n2,
-            const std::experimental::optional<typename std::enable_if_t<!std::is_void<EdgeLabel>::value, EdgeLabel>> &element
+            const std::optional<typename std::enable_if_t<!std::is_void<EdgeLabel>::value, EdgeLabel>> &element
     ) {
         return std::make_tuple(n1, n2, element.value());
     }
@@ -154,8 +154,8 @@ namespace internal { namespace graph {
         return true;
     }
     template<class EdgeLabel, typename std::enable_if_t<!std::is_void<EdgeLabel>::value, nullptr_t> = nullptr>
-    static std::experimental::optional<EdgeLabel> to_adjacency_matrix_element(const Edge<EdgeLabel> &edge) {
-        return std::experimental::make_optional(get<2>(edge));
+    static std::optional<EdgeLabel> to_adjacency_matrix_element(const Edge<EdgeLabel> &edge) {
+        return std::make_optional(get<2>(edge));
     }
 
     template <typename EdgeLabel>
@@ -190,12 +190,12 @@ namespace internal { namespace graph {
     template <typename EdgeLabel>
     auto outgoings(const AdjacencyMatrix<EdgeLabel> &matrix, size_t n) {
         return iterator_map(iterator_filter(iterator_map(matrix[n],
-                                                         [&matrix, n](const auto &elem) -> std::experimental::optional<Edge<EdgeLabel>> {
+                                                         [&matrix, n](const auto &elem) -> std::optional<Edge<EdgeLabel>> {
                                                              if (*elem) {
                                                                  auto u = distance(matrix[n].begin(), elem);
-                                                                 return std::experimental::make_optional(to_edge<EdgeLabel>(n, u, *elem));
+                                                                 return std::make_optional(to_edge<EdgeLabel>(n, u, *elem));
                                                              } else {
-                                                                 return std::experimental::optional<Edge<EdgeLabel>>();
+                                                                 return std::optional<Edge<EdgeLabel>>();
                                                              }
                                                          }),
                                             [](const auto &elem) { return static_cast<bool>(*elem); }),

@@ -26,7 +26,7 @@ source services/aoj.bash
     [ "$(cat $OUTPUT/sample2.in)" = "$(cat $OUTPUT/expected)" ]
     echo 1 > $OUTPUT/expected
     echo 2 >> $OUTPUT/expected
-    [ "$(cat $OUTPUT/sample2.out)" = "$(cat $OUTPUT/expected)" ]
+    [ "$(cat $OUTPUT/sample1.out)" = "$(cat $OUTPUT/expected)" ]
 
     rm -rf $TMPDIR
     rm -rf $OUTPUT

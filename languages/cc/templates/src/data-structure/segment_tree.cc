@@ -151,7 +151,7 @@ private:
      * @param r　indexが扱うrangeの末尾+1
      * @return Accumulate(xs[begin], xs[begin+1], ... xs[end-1])
      */
-    std::experimental::optional<V2> query(size_t begin, size_t end, size_t k, size_t l, size_t r) const {
+    std::optional<V2> query(size_t begin, size_t end, size_t k, size_t l, size_t r) const {
         if (r <= begin || end <= l) {
             // query対象と扱うrangeが交差しない
             return {};
@@ -180,7 +180,7 @@ private:
     }
 
     Accumulate m_acc;
-    Vector<std::experimental::optional<V2>> m_tree;
+    Vector<std::optional<V2>> m_tree;
     size_t m_size;
 };
 

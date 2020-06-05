@@ -1,5 +1,5 @@
 #include <limits>
-#include <experimental/optional>
+#include <optional>
 
 #ifndef MAIN
 #include "common.cc"
@@ -9,10 +9,10 @@
 namespace graph {
     template <class Cost>
     struct CostWithPreviousVertex {
-        CostWithPreviousVertex(Cost cost, std::experimental::optional<size_t> previous_vertex)
+        CostWithPreviousVertex(Cost cost, std::optional<size_t> previous_vertex)
                 : cost(cost), previous_vertex(previous_vertex) {}
         Cost cost;
-        std::experimental::optional<size_t> previous_vertex;
+        std::optional<size_t> previous_vertex;
 
         bool operator==(const CostWithPreviousVertex<Cost> &rhs) const {
             return this->cost == rhs.cost && this->previous_vertex == rhs.previous_vertex;
@@ -25,8 +25,8 @@ namespace graph {
     template <typename EdgeLabel, typename Container>
     std::vector<CostWithPreviousVertex<EdgeLabel>> dijkstra(const Graph<EdgeLabel, Container> &g, size_t start) {
         using C = CostWithPreviousVertex<EdgeLabel>;
-        using optional = std::experimental::optional<size_t>;
-        using std::experimental::make_optional;
+        using optional = std::optional<size_t>;
+        using std::make_optional;
         using std::vector;
         using std::priority_queue;
         using pair = std::pair<size_t, EdgeLabel>;
@@ -67,9 +67,9 @@ namespace graph {
     }
 
     template <typename EdgeLabel, typename Container>
-    std::vector<std::experimental::optional<CostWithPreviousVertex<EdgeLabel>>> bellman_ford(const Graph<EdgeLabel, Container> &g, size_t start) {
-        using std::experimental::optional;
-        using std::experimental::make_optional;
+    std::vector<std::optional<CostWithPreviousVertex<EdgeLabel>>> bellman_ford(const Graph<EdgeLabel, Container> &g, size_t start) {
+        using std::optional;
+        using std::make_optional;
 
         auto max = std::numeric_limits<EdgeLabel>::max();
         auto N = g.vertices_size();
@@ -107,8 +107,8 @@ namespace graph {
     template <typename EdgeLabel, typename Container>
     std::vector<std::vector<CostWithPreviousVertex<EdgeLabel>>> warshall_floyd(const Graph<EdgeLabel, Container> &g) {
         using std::vector;
-        using std::experimental::optional;
-        using std::experimental::make_optional;
+        using std::optional;
+        using std::make_optional;
         using C = CostWithPreviousVertex<EdgeLabel>;
 
         auto max = std::numeric_limits<EdgeLabel>::max();

@@ -1,5 +1,5 @@
 #include <limits>
-#include <experimental/optional>
+#include <optional>
 
 #ifndef MAIN
 #include "common.cc"
@@ -12,8 +12,8 @@ namespace graph {
     std::pair<EdgeLabel, std::vector<Edge<EdgeLabel>>> prim(const Graph<EdgeLabel, Container> &g, size_t start) {
         using std::vector;
         using std::unordered_set;
-        using optional = std::experimental::optional<Edge<EdgeLabel>>;
-        using std::experimental::make_optional;
+        using optional = std::optional<Edge<EdgeLabel>>;
+        using std::make_optional;
 
         std::unordered_set<size_t> V{start};
         std::vector<Edge<EdgeLabel>> E;
@@ -49,7 +49,7 @@ namespace graph {
     std::pair<EdgeLabel, std::vector<Edge<EdgeLabel>>> kruskal(const Graph<EdgeLabel, Container> &g) {
         using std::vector;
         using std::unordered_set;
-        using std::experimental::make_optional;
+        using std::make_optional;
         using _Edge = Edge<EdgeLabel>;
 
         UnionFind clusters(g.vertices_size());

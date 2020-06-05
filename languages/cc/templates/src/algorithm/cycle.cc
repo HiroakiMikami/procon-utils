@@ -7,10 +7,10 @@
 
 namespace graph {
     template <typename EdgeLabel, typename Container>
-    std::experimental::optional<std::vector<Edge<EdgeLabel>>> cycle(const Graph<EdgeLabel, Container> &g, size_t start) {
+    std::optional<std::vector<Edge<EdgeLabel>>> cycle(const Graph<EdgeLabel, Container> &g, size_t start) {
         using _Edge = Edge<EdgeLabel>;
         std::vector<_Edge> stack;
-        std::experimental::optional<std::vector<_Edge>> retval;
+        std::optional<std::vector<_Edge>> retval;
 
         dfs(g, {start},
                  [&retval, &stack](const auto &edge_opt, size_t v __attribute__((unused))) {
@@ -27,7 +27,7 @@ namespace graph {
                      // find backward path
                      for (auto &e: stack) {
                          if (get<0>(e) == get<1>(edge)) {
-                             retval = std::experimental::make_optional(std::vector<_Edge>());
+                             retval = std::make_optional(std::vector<_Edge>());
                          }
 
                          if (retval) {

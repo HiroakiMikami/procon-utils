@@ -25,8 +25,8 @@ TYPED_TEST(g_DijkstraTest, SimpleTest) {
     auto g = this->mkGraph(edges);
     auto ans = dijkstra(g, 0);
 
-    using std::experimental::make_optional;
-    using optional = std::experimental::optional<size_t>;
+    using std::make_optional;
+    using optional = std::optional<size_t>;
     using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
     EXPECT_EQ(3, ans.size());
     EXPECT_EQ(C(0, optional()), ans[0]);
@@ -47,8 +47,8 @@ TYPED_TEST(g_BellmanFordTest, SimpleTest) {
     auto g = this->mkGraph(edges);
     auto ans = bellman_ford(g, 0);
 
-    using std::experimental::make_optional;
-    using optional = std::experimental::optional<size_t>;
+    using std::make_optional;
+    using optional = std::optional<size_t>;
     using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
     EXPECT_EQ(3, ans.size());
     EXPECT_EQ(C(0, optional()), ans[0].value());
@@ -69,8 +69,8 @@ TYPED_TEST(g_BellmanFordTest, NegativeEdgeTest) {
     auto g = this->mkGraph(edges);
     auto ans = bellman_ford(g, 0);
 
-    using std::experimental::make_optional;
-    using optional = std::experimental::optional<size_t>;
+    using std::make_optional;
+    using optional = std::optional<size_t>;
     using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
     EXPECT_EQ(3, ans.size());
     EXPECT_EQ(C(0, optional()), ans[0].value());
@@ -111,8 +111,8 @@ TYPED_TEST(g_WarshallFloydTest, SimpleTest) {
 
     auto g = this->mkGraph(edges);
     using C = CostWithPreviousVertex<typename decltype(g)::EdgeLabel>;
-    using std::experimental::optional;
-    using std::experimental::make_optional;
+    using std::optional;
+    using std::make_optional;
     using std::vector;
     auto ans = warshall_floyd(g);
     EXPECT_EQ(3, ans.size());

@@ -17,8 +17,8 @@ namespace graph {
                   const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
                   Container container;
 
-        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
-        using std::experimental::make_optional;
+        using Optional = std::optional<Edge<EdgeLabel>>;
+        using std::make_optional;
         for (const auto &s : start) {
             push(container, make_pair(Optional{}, s));
         }
@@ -42,7 +42,7 @@ namespace graph {
     template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
     void dfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
              const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
-        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        using Optional = std::optional<Edge<EdgeLabel>>;
         auto push = [](std::stack<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) { container.push(elem); };
         auto pop = [](std::stack<std::pair<Optional, size_t>> &container) {
             auto retval = container.top();
@@ -58,7 +58,7 @@ namespace graph {
     template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
     void bfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
              const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
-        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        using Optional = std::optional<Edge<EdgeLabel>>;
         auto push = [](std::queue<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) { container.push(elem); };
         auto pop = [](std::queue<std::pair<Optional, size_t>> &container) {
             auto retval = container.front();
@@ -74,7 +74,7 @@ namespace graph {
     template<typename EdgeLabel, typename GraphContainer, typename Visit, typename FilterNot>
     void zero_one_bfs(const Graph<EdgeLabel, GraphContainer> &g, const std::vector<size_t> &start,
              const Visit &visit = Visit(), const FilterNot &filter_not = FilterNot()) {
-        using Optional = std::experimental::optional<Edge<EdgeLabel>>;
+        using Optional = std::optional<Edge<EdgeLabel>>;
         auto push = [](std::deque<std::pair<Optional, size_t>> &container, const std::pair<Optional, size_t> &elem) {
             if (elem.first) {
                 if (get<2>(elem.first.value())) {
@@ -103,7 +103,7 @@ namespace graph {
             mutable std::vector<bool> visited;
             FilterDuplicated(const Graph<EdgeLabel, Container> &g) : visited(g.vertices_size(), false) {}
 
-            bool operator()(const std::experimental::optional<Edge<EdgeLabel>> &edge __attribute__((unused)), size_t v) const {
+            bool operator()(const std::optional<Edge<EdgeLabel>> &edge __attribute__((unused)), size_t v) const {
                 if (visited[v]) {
                     return true;
                 }
